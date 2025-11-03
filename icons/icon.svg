@@ -1,0 +1,11 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue rounded square background -->
+  <rect width="128" height="128" rx="24" fill="#3b82f6"/>
+
+  <!-- Lightning bolt path -->
+  <path d="M 70 25 L 45 65 L 60 65 L 55 103 L 85 58 L 70 58 Z"
+        fill="#ffffff"
+        stroke="#ffffff"
+        stroke-width="2"
+        stroke-linejoin="round"/>
+</svg>

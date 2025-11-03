@@ -1,0 +1,13 @@
+# Chrome extension artifacts
+*.crx
+*.pem
+*.zip
+
+# Development
+node_modules/
+.DS_Store
+.vscode/
+*.log
+
+# Sensitive data (if testing)
+test-credentials.json

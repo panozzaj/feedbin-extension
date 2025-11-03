@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Feedbin Power Tools",
+  "version": "1.0.0",
+  "description": "Enhanced filtering and LLM-powered feed classification for Feedbin",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://feedbin.com/*",
+    "https://api.feedbin.com/*",
+    "https://api.anthropic.com/*",
+    "http://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://feedbin.com/*"],
+      "js": ["src/storage.js", "src/llm.js", "src/content-script.js"],
+      "css": ["src/styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Feedbin Power Tools"
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
