@@ -175,7 +175,15 @@ Respond with ONLY a comma-separated list of tags, nothing else. Example: tech, b
   async classifyEntryWithOllama(entryData, existingTags, settings, feedTags = []) {
     const url = settings.localLlmUrl || 'http://localhost:11434';
     const model = settings.localLlmModel || 'gemma3:4b';
-    const prompt = this.buildEntryPrompt(entryData, existingTags, feedTags);
+
+    // For Qwen3 models, prepend instruction to disable thinking mode
+    const isQwen3 = model.startsWith('qwen3');
+    let prompt = this.buildEntryPrompt(entryData, existingTags, feedTags);
+
+    if (isQwen3) {
+      // Qwen3 has "thinking mode" - explicitly request direct response for speed
+      prompt = "Respond directly without thinking process. " + prompt;
+    }
 
     console.log('[LLM] ===== OLLAMA REQUEST =====');
     console.log('[LLM] Entry Title:', entryData.title);
@@ -194,7 +202,7 @@ Respond with ONLY a comma-separated list of tags, nothing else. Example: tech, b
         stream: false,
         options: {
           temperature: 0.3,
-          num_predict: 100
+          num_predict: 200  // Increased from 100 to handle longer responses
         }
       };
 
@@ -218,9 +226,16 @@ Respond with ONLY a comma-separated list of tags, nothing else. Example: tech, b
       // Omit 'context' key (just token values) for cleaner logging
       const { context, ...dataWithoutContext } = data;
       console.log('[LLM] Full response:', JSON.stringify(dataWithoutContext, null, 2));
-      console.log('[LLM] Response text:', data.response);
 
-      const parsed = this.parseTags(data.response);
+      // Qwen3 uses "thinking" field in reasoning mode - check both fields
+      const responseText = data.response || data.thinking || '';
+      console.log('[LLM] Response text:', responseText);
+
+      if (data.done_reason === 'length') {
+        console.warn('[LLM] ⚠️ WARNING: Response was truncated due to token limit!');
+      }
+
+      const parsed = this.parseTags(responseText);
       console.log('[LLM] Parsed tags:', parsed.tags);
       console.log('[LLM] Tag reasons:', parsed.tagReasons);
 

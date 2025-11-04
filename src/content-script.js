@@ -719,6 +719,35 @@ class FeedbinPowerTools {
 
       const result = response.result;
 
+      // IMPORTANT: Validate tags against allowed list
+      // LLMs sometimes ignore instructions and return invalid tags
+      const validTags = result.tags.filter(tag => allTags.includes(tag));
+      const invalidTags = result.tags.filter(tag => !allTags.includes(tag));
+
+      if (invalidTags.length > 0) {
+        console.warn(`[Feedbin Power Tools] ⚠️ LLM returned invalid tags (filtered out): ${invalidTags.join(', ')}`);
+        console.warn(`[Feedbin Power Tools] Valid tags in system: ${allTags.join(', ')}`);
+      }
+
+      if (validTags.length === 0) {
+        console.warn(`[Feedbin Power Tools] No valid tags returned for: ${entryData.title}`);
+        return; // Don't save if no valid tags
+      }
+
+      // Update result with only valid tags
+      result.tags = validTags;
+
+      // Also filter tagReasons to only include valid tags
+      if (result.tagReasons) {
+        const validTagReasons = {};
+        validTags.forEach(tag => {
+          if (result.tagReasons[tag]) {
+            validTagReasons[tag] = result.tagReasons[tag];
+          }
+        });
+        result.tagReasons = validTagReasons;
+      }
+
       if (result.tags && result.tags.length > 0) {
         // Save tags with individual reasons
         await Storage.setEntryTags(entryId, result.tags, result.tagReasons || {});
