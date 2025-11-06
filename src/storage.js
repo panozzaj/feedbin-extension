@@ -175,7 +175,7 @@ const Storage = {
       openaiApiKey: '',
       localLlmUrl: 'http://localhost:11434', // Ollama default
       localLlmModel: 'gemma3:4b', // Default model
-      autoClassify: false
+      autoClassify: true // Auto-classify entries by default
     };
   },
 

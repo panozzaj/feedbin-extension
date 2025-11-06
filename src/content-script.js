@@ -37,9 +37,12 @@ class FeedbinPowerTools {
     // Listen for storage changes (from popup)
     this.listenForStorageChanges();
 
-    // Auto-classify visible entries if enabled
-    if (this.settings.autoClassify) {
+    // Auto-classify visible entries in the background if enabled
+    if (this.settings.autoClassify !== false) { // Default to true
+      console.log('[Feedbin Power Tools] Starting automatic background classification...');
       this.queueVisibleEntriesForClassification();
+    } else {
+      console.log('[Feedbin Power Tools] Auto-classification disabled');
     }
 
     this.initialized = true;
@@ -499,8 +502,8 @@ class FeedbinPowerTools {
         this.applyFiltersTimeout = setTimeout(() => {
           this.applyFilters();
 
-          // Auto-classify new entries if enabled
-          if (this.settings.autoClassify && newEntries.length > 0) {
+          // Auto-classify new entries in the background if enabled
+          if (this.settings.autoClassify !== false && newEntries.length > 0) {
             newEntries.forEach(entryEl => {
               const entryId = entryEl.dataset.entryId;
               if (entryId && !this.entryTags[entryId]) {
@@ -535,7 +538,14 @@ class FeedbinPowerTools {
       }
 
       if (changes.settings) {
+        const oldSettings = this.settings;
         this.settings = changes.settings.newValue || {};
+
+        // If autoClassify was just enabled, classify visible entries
+        if (!oldSettings.autoClassify && this.settings.autoClassify) {
+          console.log('[Feedbin Power Tools] Auto-classification enabled, classifying visible entries...');
+          this.queueVisibleEntriesForClassification();
+        }
       }
 
       if (shouldUpdate) {
@@ -569,10 +579,7 @@ class FeedbinPowerTools {
     // Add to queue
     this.classificationQueue.push(...entriesToClassify);
 
-    // Show status
-    this.showClassificationStatus(`Classifying ${entriesToClassify.length} entries...`);
-
-    // Start processing
+    // Start processing (it will update the status with the full queue length)
     this.processClassificationQueue();
   }
 
@@ -593,11 +600,14 @@ class FeedbinPowerTools {
 
     console.log(`[Feedbin Power Tools] Processing ${this.classificationQueue.length} entries (${CONCURRENT_LIMIT} concurrent)`);
 
+    // Show initial status with full queue length
+    this.showClassificationStatus(`Classifying ${this.classificationQueue.length} entries...`);
+
     while (this.classificationQueue.length > 0) {
       // Take up to CONCURRENT_LIMIT entries from the queue
       const batch = this.classificationQueue.splice(0, CONCURRENT_LIMIT);
 
-      // Update status
+      // Update status with remaining count
       const remaining = this.classificationQueue.length + batch.length;
       this.showClassificationStatus(`Classifying ${remaining} entries...`);
 

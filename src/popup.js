@@ -49,6 +49,7 @@ class PopupUI {
     document.getElementById('local-model').value = this.settings.localLlmModel || 'gemma3:4b';
     document.getElementById('claude-key').value = this.settings.claudeApiKey || '';
     document.getElementById('openai-key').value = this.settings.openaiApiKey || '';
+    document.getElementById('auto-classify').checked = this.settings.autoClassify !== false; // Default to true
 
     // Show current user if logged in
     if (this.credentials.email) {
@@ -95,6 +96,13 @@ class PopupUI {
       this.updateLLMSettings();
     });
     document.getElementById('save-settings-btn').addEventListener('click', () => this.saveSettings());
+
+    // Auto-classify toggle (save immediately)
+    document.getElementById('auto-classify').addEventListener('change', async (e) => {
+      this.settings.autoClassify = e.target.checked;
+      await Storage.setSettings(this.settings);
+      this.showStatus(`Auto-classification ${e.target.checked ? 'enabled' : 'disabled'}`, 'success');
+    });
 
     // Tag management
     document.getElementById('add-tag-btn').addEventListener('click', () => this.addCustomTag());
@@ -181,7 +189,8 @@ class PopupUI {
       localLlmUrl: document.getElementById('local-url').value,
       localLlmModel: document.getElementById('local-model').value,
       claudeApiKey: document.getElementById('claude-key').value,
-      openaiApiKey: document.getElementById('openai-key').value
+      openaiApiKey: document.getElementById('openai-key').value,
+      autoClassify: document.getElementById('auto-classify').checked
     };
 
     try {
