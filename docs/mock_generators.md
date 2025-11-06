@@ -3,6 +3,7 @@
 ## JavaScript Helper Functions
 
 ### Entry Mock Generator
+
 ```javascript
 function createEntryMock(options = {}) {
   const defaults = {
@@ -13,10 +14,10 @@ function createEntryMock(options = {}) {
     url: 'https://example.com/article',
     published: new Date().toISOString(),
     read: false,
-    starred: false
-  };
+    starred: false,
+  }
 
-  const config = { ...defaults, ...options };
+  const config = { ...defaults, ...options }
 
   return {
     id: config.id,
@@ -28,22 +29,24 @@ function createEntryMock(options = {}) {
     published: config.published,
     created_at: new Date().toISOString(),
     author: options.author || null,
-    twitter_id: options.twitter_id || null
-  };
+    twitter_id: options.twitter_id || null,
+  }
 }
 ```
 
 ### Entry HTML Generator
+
 ```javascript
 function createEntryHTML(entryData = {}) {
-  const entry = createEntryMock(entryData);
-  const timestamp = Math.floor(new Date(entry.published).getTime() / 1000);
-  const isRead = entryData.read ? 'read' : '';
-  const isSelected = entryData.selected ? 'selected' : '';
-  const isStarred = entryData.starred ? 'starred' : '';
-  
-  const classes = `entry-summary feed-id-${entry.feed_id} ${isRead} ${isSelected} ${isStarred}`.trim();
-  
+  const entry = createEntryMock(entryData)
+  const timestamp = Math.floor(new Date(entry.published).getTime() / 1000)
+  const isRead = entryData.read ? 'read' : ''
+  const isSelected = entryData.selected ? 'selected' : ''
+  const isStarred = entryData.starred ? 'starred' : ''
+
+  const classes =
+    `entry-summary feed-id-${entry.feed_id} ${isRead} ${isSelected} ${isStarred}`.trim()
+
   return `
     <li class="${classes}" data-entry-id="${entry.id}" data-behavior="keyboard_navigable">
       <a class="entry-summary-link" 
@@ -72,11 +75,12 @@ function createEntryHTML(entryData = {}) {
         </div>
       </a>
     </li>
-  `.trim();
+  `.trim()
 }
 ```
 
 ### Entry List Generator
+
 ```javascript
 function createEntryListHTML(entries = []) {
   if (entries.length === 0) {
@@ -86,15 +90,13 @@ function createEntryListHTML(entries = []) {
       { id: 2, title: 'Read Article', read: true },
       { id: 3, title: 'Selected Article', selected: true },
       { id: 4, title: 'Starred Article', starred: true },
-      { id: 5, title: 'Read & Starred', read: true, starred: true }
-    ];
+      { id: 5, title: 'Read & Starred', read: true, starred: true },
+    ]
   }
 
-  const html = entries
-    .map(entry => createEntryHTML(entry))
-    .join('\n');
+  const html = entries.map((entry) => createEntryHTML(entry)).join('\n')
 
-  return `<ul class="entries">\n${html}\n</ul>`;
+  return `<ul class="entries">\n${html}\n</ul>`
 }
 ```
 
@@ -103,42 +105,84 @@ function createEntryListHTML(entries = []) {
 ## HTML Test Fixtures
 
 ### Minimal Setup
+
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <style>
-    .entry-summary { margin: 8px 0; padding: 8px; border-bottom: 1px solid #ccc; }
-    .entry-summary.read .entry-summary-link { color: #999; }
-    .entry-summary.selected .entry-summary-inner { background: #0078d4; color: white; padding: 8px; }
-    .entry-summary.starred .icon-star-on { visibility: visible; }
-    .icon-star-on { visibility: hidden; }
-    .title { font-weight: bold; font-size: 15px; margin: 8px 0; }
-    .summary { font-size: 14px; color: #666; margin: 4px 0; }
-  </style>
-</head>
-<body>
-  <div class="entries-container">
-    <ul class="entries" id="entries-list"></ul>
-  </div>
+  <head>
+    <style>
+      .entry-summary {
+        margin: 8px 0;
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+      }
+      .entry-summary.read .entry-summary-link {
+        color: #999;
+      }
+      .entry-summary.selected .entry-summary-inner {
+        background: #0078d4;
+        color: white;
+        padding: 8px;
+      }
+      .entry-summary.starred .icon-star-on {
+        visibility: visible;
+      }
+      .icon-star-on {
+        visibility: hidden;
+      }
+      .title {
+        font-weight: bold;
+        font-size: 15px;
+        margin: 8px 0;
+      }
+      .summary {
+        font-size: 14px;
+        color: #666;
+        margin: 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="entries-container">
+      <ul class="entries" id="entries-list"></ul>
+    </div>
 
-  <script>
-    // Load mock data
-    const mockEntries = [
-      { id: 1, feedId: 100, title: 'Breaking News', summary: 'Important update about...', read: false },
-      { id: 2, feedId: 100, title: 'Tech News', summary: 'Latest in technology...', read: true },
-      { id: 3, feedId: 100, title: 'Featured', summary: 'This article is starred', read: false, starred: true },
-      { id: 4, feedId: 101, title: 'Another Feed', summary: 'From different feed...', read: true }
-    ];
+    <script>
+      // Load mock data
+      const mockEntries = [
+        {
+          id: 1,
+          feedId: 100,
+          title: 'Breaking News',
+          summary: 'Important update about...',
+          read: false,
+        },
+        { id: 2, feedId: 100, title: 'Tech News', summary: 'Latest in technology...', read: true },
+        {
+          id: 3,
+          feedId: 100,
+          title: 'Featured',
+          summary: 'This article is starred',
+          read: false,
+          starred: true,
+        },
+        {
+          id: 4,
+          feedId: 101,
+          title: 'Another Feed',
+          summary: 'From different feed...',
+          read: true,
+        },
+      ]
 
-    const list = document.getElementById('entries-list');
-    mockEntries.forEach(entry => {
-      const li = document.createElement('li');
-      li.innerHTML = createEntryHTML(entry);
-      list.appendChild(li);
-    });
-  </script>
-</body>
+      const list = document.getElementById('entries-list')
+      mockEntries.forEach((entry) => {
+        const li = document.createElement('li')
+        li.innerHTML = createEntryHTML(entry)
+        list.appendChild(li)
+      })
+    </script>
+  </body>
 </html>
 ```
 
@@ -147,75 +191,76 @@ function createEntryListHTML(entries = []) {
 ## Jest Test Suite Examples
 
 ### Test Entry Creation
+
 ```javascript
 describe('Entry Mock Generator', () => {
   test('creates entry with default values', () => {
-    const entry = createEntryMock();
-    expect(entry.id).toBeGreaterThan(0);
-    expect(entry.title).toBe('Test Article Title');
-    expect(entry.feed_id).toBeGreaterThan(0);
-  });
+    const entry = createEntryMock()
+    expect(entry.id).toBeGreaterThan(0)
+    expect(entry.title).toBe('Test Article Title')
+    expect(entry.feed_id).toBeGreaterThan(0)
+  })
 
   test('creates entry with custom values', () => {
     const entry = createEntryMock({
       id: 123,
       feedId: 456,
       title: 'Custom Title',
-      read: true
-    });
-    expect(entry.id).toBe(123);
-    expect(entry.feed_id).toBe(456);
-    expect(entry.title).toBe('Custom Title');
-  });
+      read: true,
+    })
+    expect(entry.id).toBe(123)
+    expect(entry.feed_id).toBe(456)
+    expect(entry.title).toBe('Custom Title')
+  })
 
   test('generates valid ISO8601 timestamp', () => {
-    const entry = createEntryMock();
-    expect(new Date(entry.published)).not.toBeNaN();
-  });
-});
+    const entry = createEntryMock()
+    expect(new Date(entry.published)).not.toBeNaN()
+  })
+})
 
 describe('Entry HTML Generation', () => {
   test('renders entry with correct data attributes', () => {
-    const entry = createEntryMock({ id: 123, feedId: 456 });
-    const html = createEntryHTML(entry);
-    expect(html).toContain('data-entry-id="123"');
-    expect(html).toContain('feed-id-456');
-  });
+    const entry = createEntryMock({ id: 123, feedId: 456 })
+    const html = createEntryHTML(entry)
+    expect(html).toContain('data-entry-id="123"')
+    expect(html).toContain('feed-id-456')
+  })
 
   test('applies read class when entry is read', () => {
-    const html = createEntryHTML({ id: 1, read: true });
-    expect(html).toContain('class="entry-summary feed-id');
-    expect(html).toContain('read');
-  });
+    const html = createEntryHTML({ id: 1, read: true })
+    expect(html).toContain('class="entry-summary feed-id')
+    expect(html).toContain('read')
+  })
 
   test('applies selected class when entry is selected', () => {
-    const html = createEntryHTML({ id: 1, selected: true });
-    expect(html).toContain('selected');
-  });
+    const html = createEntryHTML({ id: 1, selected: true })
+    expect(html).toContain('selected')
+  })
 
   test('shows star icon when entry is starred', () => {
-    const html = createEntryHTML({ id: 1, starred: true });
-    expect(html).toContain('icon-star-on');
-  });
-});
+    const html = createEntryHTML({ id: 1, starred: true })
+    expect(html).toContain('icon-star-on')
+  })
+})
 
 describe('Entry List Generation', () => {
   test('generates list with multiple entries', () => {
     const html = createEntryListHTML([
       { id: 1, title: 'Article 1' },
-      { id: 2, title: 'Article 2' }
-    ]);
-    expect(html).toContain('<ul class="entries">');
-    expect(html).toContain('Article 1');
-    expect(html).toContain('Article 2');
-  });
+      { id: 2, title: 'Article 2' },
+    ])
+    expect(html).toContain('<ul class="entries">')
+    expect(html).toContain('Article 1')
+    expect(html).toContain('Article 2')
+  })
 
   test('generates default list when no entries provided', () => {
-    const html = createEntryListHTML();
-    expect(html).toContain('feed-id-');
-    expect(html).toContain('entry-summary');
-  });
-});
+    const html = createEntryListHTML()
+    expect(html).toContain('feed-id-')
+    expect(html).toContain('entry-summary')
+  })
+})
 ```
 
 ---
@@ -223,6 +268,7 @@ describe('Entry List Generation', () => {
 ## Cypress Test Helpers
 
 ### Create Test Fixtures
+
 ```javascript
 // cypress/support/entry-helpers.js
 
@@ -234,8 +280,8 @@ export function createMockEntry(overrides = {}) {
     summary: 'Test summary',
     url: 'https://example.com/article',
     published: new Date().toISOString(),
-    ...overrides
-  };
+    ...overrides,
+  }
 }
 
 export function createMockEntries(count = 5) {
@@ -245,24 +291,22 @@ export function createMockEntries(count = 5) {
     title: `Article ${i + 1}`,
     summary: `Summary for article ${i + 1}`,
     url: `https://example.com/article/${i + 1}`,
-    published: new Date(Date.now() - i * 86400000).toISOString()
-  }));
+    published: new Date(Date.now() - i * 86400000).toISOString(),
+  }))
 }
 
 export function mountEntryList(entries = []) {
-  const html = entries
-    .map(entry => generateEntryHTML(entry))
-    .join('\n');
-  
-  cy.document().then(doc => {
-    const container = doc.createElement('div');
-    container.innerHTML = `<ul class="entries">${html}</ul>`;
-    doc.body.appendChild(container);
-  });
+  const html = entries.map((entry) => generateEntryHTML(entry)).join('\n')
+
+  cy.document().then((doc) => {
+    const container = doc.createElement('div')
+    container.innerHTML = `<ul class="entries">${html}</ul>`
+    doc.body.appendChild(container)
+  })
 }
 
 function generateEntryHTML(entry) {
-  const timestamp = Math.floor(new Date(entry.published).getTime() / 1000);
+  const timestamp = Math.floor(new Date(entry.published).getTime() / 1000)
   return `
     <li class="entry-summary feed-id-${entry.feed_id}" data-entry-id="${entry.id}">
       <a class="entry-summary-link" 
@@ -275,48 +319,49 @@ function generateEntryHTML(entry) {
         </div>
       </a>
     </li>
-  `;
+  `
 }
 ```
 
 ### Cypress Test Examples
+
 ```javascript
 // cypress/e2e/entry-tests.cy.js
 
-import { createMockEntry, createMockEntries, mountEntryList } from '../support/entry-helpers';
+import { createMockEntry, createMockEntries, mountEntryList } from '../support/entry-helpers'
 
 describe('Entry Rendering', () => {
   beforeEach(() => {
-    cy.visit('/');
-    mountEntryList(createMockEntries(5));
-  });
+    cy.visit('/')
+    mountEntryList(createMockEntries(5))
+  })
 
   it('displays entry list', () => {
-    cy.get('.entries').should('exist');
-    cy.get('.entry-summary').should('have.length', 5);
-  });
+    cy.get('.entries').should('exist')
+    cy.get('.entry-summary').should('have.length', 5)
+  })
 
   it('shows entry title', () => {
-    cy.get('.entry-summary').first().contains('Article 1');
-  });
+    cy.get('.entry-summary').first().contains('Article 1')
+  })
 
   it('applies read class when marked read', () => {
-    cy.get('[data-entry-id="1"]').addClass('read');
-    cy.get('[data-entry-id="1"]').should('have.class', 'read');
-  });
+    cy.get('[data-entry-id="1"]').addClass('read')
+    cy.get('[data-entry-id="1"]').should('have.class', 'read')
+  })
 
   it('toggles selected state', () => {
-    cy.get('[data-entry-id="1"]').click();
-    cy.get('[data-entry-id="1"]').should('have.class', 'selected');
-  });
+    cy.get('[data-entry-id="1"]').click()
+    cy.get('[data-entry-id="1"]').should('have.class', 'selected')
+  })
 
   it('toggles starred state', () => {
-    cy.get('[data-entry-id="1"]').then($el => {
-      $el[0].classList.add('starred');
-    });
-    cy.get('[data-entry-id="1"]').should('have.class', 'starred');
-  });
-});
+    cy.get('[data-entry-id="1"]').then(($el) => {
+      $el[0].classList.add('starred')
+    })
+    cy.get('[data-entry-id="1"]').should('have.class', 'starred')
+  })
+})
 ```
 
 ---
@@ -397,6 +442,7 @@ print(entry.to_html())
 ## Quick Command Line Usage
 
 ### Generate HTML to clipboard
+
 ```bash
 # Copy mock entry HTML to clipboard
 node -e "
@@ -409,6 +455,7 @@ console.log(createEntryHTML(entry));
 ```
 
 ### Generate Test Data
+
 ```bash
 # Generate 10 random entries as JSON
 node -e "

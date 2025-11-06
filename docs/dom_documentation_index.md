@@ -5,9 +5,11 @@ Complete reference documentation for Feedbin web application structure, extracte
 ## Documentation Files
 
 ### 1. FEEDBIN_DOM_STRUCTURE.md (Main Reference - 604 lines)
+
 **Comprehensive documentation of the complete Feedbin entry/article DOM structure.**
 
 Contains:
+
 - Entry list item DOM structure with full examples
 - CSS classes & state indicators (read, selected, starred, media, etc.)
 - Data attributes reference (entry-id, feed-id, entry-info, behavior)
@@ -28,9 +30,11 @@ Contains:
 ---
 
 ### 2. QUICK_REFERENCE.md (Fast Lookup - 239 lines)
+
 **Quick lookup guide for the most commonly needed information.**
 
 Contains:
+
 - Essential classes & attributes summary
 - State classes cheat sheet
 - Data attributes quick guide
@@ -47,9 +51,11 @@ Contains:
 ---
 
 ### 3. MOCK_GENERATORS.md (Implementation Guide - 427 lines)
+
 **Practical code examples for generating test mocks.**
 
 Contains:
+
 - JavaScript helper functions (createEntryMock, createEntryHTML, createEntryListHTML)
 - HTML test fixtures with minimal setup
 - Jest test suite examples with unit tests
@@ -64,20 +70,24 @@ Contains:
 ## Quick Start Guide
 
 ### For Creating a Test Entry List:
+
 1. Read: QUICK_REFERENCE.md (HTML Structure Template section)
 2. Reference: FEEDBIN_DOM_STRUCTURE.md (Section 1 & 2)
 3. Implement: MOCK_GENERATORS.md (JavaScript Entry HTML Generator)
 
 ### For Understanding Entry States:
+
 1. Quick lookup: QUICK_REFERENCE.md (State Classes Cheat Sheet)
 2. Deep dive: FEEDBIN_DOM_STRUCTURE.md (Section 2: CSS Classes)
 
 ### For Testing:
+
 1. Setup: MOCK_GENERATORS.md (HTML Test Fixtures or Jest/Cypress examples)
 2. Reference: QUICK_REFERENCE.md (Testing Checklist)
 3. Validate: FEEDBIN_DOM_STRUCTURE.md (Section 3: Data Attributes)
 
 ### For API Integration:
+
 1. Overview: FEEDBIN_DOM_STRUCTURE.md (Section 6: API Response Format)
 2. Details: FEEDBIN_DOM_STRUCTURE.md (Section 7: Entry Metadata Fields)
 3. Implement: MOCK_GENERATORS.md (Mock generators for API responses)
@@ -87,12 +97,15 @@ Contains:
 ## Key Information by Topic
 
 ### CSS Classes
+
 **Primary Classes:**
+
 - `.entry-summary` - Entry list item container
 - `.entry-summary-link` - Clickable entry
 - `.entry-summary-inner` - Content wrapper
 
 **State Classes:**
+
 - `.read` - Read entries (appear faded)
 - `.selected` - Currently selected (blue highlight)
 - `.starred` - Starred/saved (shows star icon)
@@ -103,20 +116,25 @@ Contains:
 - `.feed-id-{ID}` - Feed identifier
 
 ### Data Attributes
+
 **Most Important:**
+
 - `data-entry-id="456"` - Unique entry ID
 - `data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'` - Entry metadata
 - `data-behavior="selectable open_item show_entry_content entry_info"` - Interaction handlers
 - `data-url="https://example.com"` - Article URL
 
 ### State Management
+
 **Entry States:**
+
 1. Unread (no `.read` class) - Normal contrast
 2. Read (`.read` class) - Faded/gray text
 3. Selected (`.selected` class) - Blue highlight, white text
 4. Starred (`.starred` class) - Orange star visible
 
 **Toggling:**
+
 - Read status: Form with `data-behavior="toggle_read"`
 - Star status: Form with `data-behavior="toggle_starred"`
 
@@ -181,6 +199,7 @@ MOCK_GENERATORS.md (Implementation)
 ## Real-World Example: Complete Entry Mock
 
 ### Minimal
+
 ```html
 <li class="entry-summary feed-id-123" data-entry-id="456" data-behavior="keyboard_navigable">
   <a class="entry-summary-link" data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'>
@@ -195,15 +214,22 @@ MOCK_GENERATORS.md (Implementation)
 ```
 
 ### Rich (with media, feed info, timestamp)
+
 ```html
-<li class="entry-summary feed-id-123 starred" data-entry-id="456" data-behavior="keyboard_navigable">
-  <a class="entry-summary-link" 
-     data-behavior="selectable open_item show_entry_content entry_info"
-     data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'
-     data-url="https://example.com/article">
+<li
+  class="entry-summary feed-id-123 starred"
+  data-entry-id="456"
+  data-behavior="keyboard_navigable"
+>
+  <a
+    class="entry-summary-link"
+    data-behavior="selectable open_item show_entry_content entry_info"
+    data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'
+    data-url="https://example.com/article"
+  >
     <div class="entry-summary-inner">
       <div class="title-wrap">
-        <span class="favicon-wrap"><img src="favicon.png" alt=""></span>
+        <span class="favicon-wrap"><img src="favicon.png" alt="" /></span>
         <div class="title">Article With Image</div>
       </div>
       <div class="summary-content">
@@ -226,6 +252,7 @@ MOCK_GENERATORS.md (Implementation)
 ```
 
 ### Read
+
 ```html
 <li class="entry-summary feed-id-123 read" data-entry-id="457" data-behavior="keyboard_navigable">
   <!-- Same structure, with .read class -->
@@ -239,6 +266,7 @@ MOCK_GENERATORS.md (Implementation)
 ### From Feedbin Repository (../feedbin)
 
 **Templates:**
+
 - `/app/views/entries/_entry.html.erb` - Main entry list item template
 - `/app/views/entries/_show.html.erb` - Entry detail view
 - `/app/views/unread_entries/_form.html.erb` - Mark as read control
@@ -246,18 +274,22 @@ MOCK_GENERATORS.md (Implementation)
 - `/app/views/shared/_entry_status.html.erb` - Status indicators
 
 **Models & Presenters:**
+
 - `/app/models/entry.rb` - Entry model with attributes
 - `/app/presenters/entry_presenter.rb` - Presentation logic
 
 **API Views:**
+
 - `/app/views/api/v2/entries/_entry_default.json.jbuilder` - Default API response
 - `/app/views/api/v2/entries/_entry_extended.json.jbuilder` - Extended API response
 - `/app/views/api/v2/entries/_entry_private.json.jbuilder` - Private/app API response
 
 **Styles:**
+
 - `/app/assets/stylesheets/application.scss` - All CSS (lines 1790-2150 for entry styles)
 
 **JavaScript:**
+
 - `/app/assets/javascripts/web/_site.js.coffee` - Main behavior handlers
 - `/app/assets/javascripts/web/keyboard.js.coffee` - Keyboard navigation
 - `/app/assets/javascripts/web/entries.js.coffee` - Entry-specific handlers
@@ -267,6 +299,7 @@ MOCK_GENERATORS.md (Implementation)
 ## Testing Tips
 
 ### Visual Testing Checklist
+
 - [ ] Unread entries show normal contrast text
 - [ ] Read entries show faded/gray text
 - [ ] Selected entry has blue background with white text
@@ -278,6 +311,7 @@ MOCK_GENERATORS.md (Implementation)
 - [ ] Entry image placeholder shows with correct background color
 
 ### Data Attribute Validation
+
 - [ ] `data-entry-id` is unique per entry
 - [ ] `data-entry-info` contains valid JSON
 - [ ] `feed_id` in JSON matches `feed-id-{ID}` class
@@ -286,6 +320,7 @@ MOCK_GENERATORS.md (Implementation)
 - [ ] `data-behavior` contains expected behavior names
 
 ### Interactive Testing
+
 - [ ] Clicking entry opens detail view
 - [ ] Toggle read button changes state
 - [ ] Toggle star button changes state
@@ -305,20 +340,21 @@ The extension can interact with Feedbin entries through:
 5. **API Calls:** Fetch entry data via Feedbin API endpoints
 
 Example extension interaction:
+
 ```javascript
 // Get currently selected entry
-const selectedEntry = document.querySelector('li.entry-summary.selected');
-const entryId = selectedEntry.dataset.entryId;
-const entryInfo = JSON.parse(selectedEntry.querySelector('a').dataset.entryInfo);
+const selectedEntry = document.querySelector('li.entry-summary.selected')
+const entryId = selectedEntry.dataset.entryId
+const entryInfo = JSON.parse(selectedEntry.querySelector('a').dataset.entryInfo)
 
 // Check if entry is read
-const isRead = selectedEntry.classList.contains('read');
+const isRead = selectedEntry.classList.contains('read')
 
 // Check if entry is starred
-const isStarred = selectedEntry.classList.contains('starred');
+const isStarred = selectedEntry.classList.contains('starred')
 
 // Get article URL
-const articleUrl = selectedEntry.querySelector('a').dataset.url;
+const articleUrl = selectedEntry.querySelector('a').dataset.url
 ```
 
 ---

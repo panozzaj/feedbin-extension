@@ -3,11 +3,13 @@
 ## Recent Changes (Latest Session)
 
 ### 1. Full Article Content
+
 - **Before:** Only using 300 chars of summary text from preview
 - **After:** Fetching full article content from Feedbin API (`/v2/entries/{id}.json`)
 - **Impact:** Now classifying based on up to 2000 chars of actual article body, not just summary
 
 ### 2. Feed Tags as Context
+
 - **Added:** Feed-level tags are now passed to the LLM as context
 - **Example:** If a feed is tagged "politics", entries from that feed will bias toward political classification
 - **How it works:**
@@ -16,6 +18,7 @@
   - Passes to LLM in prompt as "Feed Tags (for context)"
 
 ### 3. Enhanced Political Keywords
+
 - **Added explicit examples:**
   - Trump administration, Biden administration
   - Congress, Supreme Court
@@ -25,6 +28,7 @@
   - Congressional actions, Supreme Court decisions
 
 ### 4. Clearer Classification Rules
+
 ```
 POLITICS = government/elections/policy/lawmakers/legislation/campaigns/
            administration/military policy/executive actions/government legal
@@ -40,7 +44,9 @@ Key Rules:
 ```
 
 ### 5. Comprehensive Logging
+
 Now logs to browser console:
+
 - Full entry data (title, feed, author)
 - Whether we have full content vs summary
 - Content lengths (raw HTML and processed text)
@@ -56,6 +62,7 @@ Now logs to browser console:
 2. **Open Service Worker console:** Click blue "service worker" link
 3. **Classify an entry:** Click classify button on any post
 4. **Check console output:**
+
 ```
 [Background] ===== CLASSIFICATION REQUEST =====
 [Background] Feed Tags: ["politics"]

@@ -7,23 +7,27 @@ A Chrome extension that enhances Feedbin with intelligent filtering and LLM-powe
 ## Key Features
 
 ### 1. Feed-Level Tagging
+
 - Tag feeds into categories: politics, tech, personal, news, etc.
 - Manual tagging via popup UI
 - Automatic tagging using LLMs
 
 ### 2. Smart Filtering
+
 - **Show Only**: Display entries only from feeds with specific tags
 - **Hide**: Exclude entries from feeds with specific tags
 - **Combined Filters**: Mix include and exclude rules
 - Real-time filtering without page reload
 
 ### 3. LLM Integration
+
 - **Local**: Ollama (free, private, unlimited)
 - **Cloud**: Claude (Anthropic) or OpenAI
 - Automatic classification based on feed title, URL, and recent articles
 - Batch classification for all feeds at once
 
 ### 4. Data Management
+
 - Export/Import tag configurations
 - All data stored locally (Chrome storage)
 - No server-side dependencies
@@ -32,18 +36,21 @@ A Chrome extension that enhances Feedbin with intelligent filtering and LLM-powe
 ## Architecture Highlights
 
 ### Client-Side Only
+
 - Content script injects filter UI into feedbin.com
 - Background worker for badge updates
 - Popup for management and configuration
 - All filtering via DOM manipulation
 
 ### API Usage
+
 - Uses Feedbin's public REST API v2
 - Standard HTTP Basic Auth
 - No modifications to Feedbin servers required
 - Compatible with production instance
 
 ### Storage Schema
+
 ```javascript
 {
   feedTags: {
@@ -89,6 +96,7 @@ feedbin-extension/
 ## How It Works
 
 ### 1. Feed Classification
+
 ```
 User opens popup
   ↓
@@ -104,6 +112,7 @@ Content script applies filters
 ```
 
 ### 2. Filtering Process
+
 ```
 User browses feedbin.com/unread
   ↓
@@ -125,6 +134,7 @@ Result: Filtered view with no server changes
 ### Quick Setup (5 minutes)
 
 1. **Install Ollama** (for local LLM):
+
    ```bash
    brew install ollama
    ollama serve
@@ -154,14 +164,17 @@ Result: Filtered view with no server changes
 ### Example Workflows
 
 **Focus on Tech News**:
+
 - Click "tech" under "Show only"
 - Result: Only tech feed entries visible
 
 **Hide Politics**:
+
 - Click "politics" under "Hide"
 - Result: Political content filtered out
 
 **Mixed Filtering**:
+
 - Show only: tech, science
 - Hide: politics
 - Result: Tech and science visible, politics hidden
@@ -169,18 +182,21 @@ Result: Filtered view with no server changes
 ## Technical Details
 
 ### DOM Integration
+
 - Targets: `.entry-summary` elements in `.entries-column`
 - Extracts feed ID from: `.entry-feed-{id}` CSS class
 - Injects toolbar before: `.entries-header`
 - Uses `MutationObserver` for dynamic content
 
 ### LLM Classification
+
 - Prompt includes: feed title, URL, recent article titles
 - Tries to reuse existing tags for consistency
 - Temperature: 0.3 (deterministic)
 - Parses comma-separated tag list from response
 
 ### Feedbin API Endpoints Used
+
 ```
 GET /v2/subscriptions
     → List user's feeds
@@ -190,6 +206,7 @@ GET /v2/entries?per_page=100
 ```
 
 ### Performance
+
 - Filter application: ~100ms (debounced)
 - LLM classification: 1-3 seconds per feed
 - Batch classification: ~500ms delay between calls (rate limiting)
@@ -198,17 +215,20 @@ GET /v2/entries?per_page=100
 ## Security & Privacy
 
 ### Data Storage
+
 - All data stored locally in Chrome
 - No external servers or databases
 - Credentials only sent to feedbin.com
 - API keys only sent to respective LLM providers
 
 ### With Local LLM (Ollama)
+
 - **100% private**: No data leaves your computer
 - **Free**: No API costs
 - **Unlimited**: No rate limits
 
 ### With Cloud LLM
+
 - Feed metadata sent to Claude/OpenAI for classification
 - API keys required (user-provided)
 - Costs per request (~$0.001-0.01 per feed)
@@ -216,6 +236,7 @@ GET /v2/entries?per_page=100
 ## Limitations
 
 ### Current Constraints
+
 1. **Feed-level only**: Classifies entire feeds, not individual articles
 2. **Chrome only**: Uses Chrome Extensions API
 3. **Feedbin-specific**: Tightly coupled to Feedbin's DOM
@@ -223,6 +244,7 @@ GET /v2/entries?per_page=100
 5. **Client-side filtering**: Hidden entries still load
 
 ### Future Enhancements
+
 - Entry-level classification
 - Custom filter rules (regex, keywords)
 - Bulk actions (mark as read, star)
@@ -247,12 +269,14 @@ GET /v2/entries?per_page=100
 ## Compatibility
 
 ### Feedbin
+
 - Works with production feedbin.com
 - Uses public REST API v2
 - No modifications to Feedbin codebase needed
 - Compatible with Feedbin's DOM structure (as of Nov 2025)
 
 ### Browser
+
 - **Chrome**: ✓ Tested
 - **Chromium**: ✓ Should work
 - **Edge**: ✓ Should work (Chromium-based)
@@ -261,6 +285,7 @@ GET /v2/entries?per_page=100
 - **Safari**: ✗ Needs conversion (different extension API)
 
 ### LLM Providers
+
 - **Ollama**: ✓ Local, any compatible model
 - **Claude**: ✓ API v2023-06-01
 - **OpenAI**: ✓ GPT-4 and GPT-3.5 models
@@ -269,6 +294,7 @@ GET /v2/entries?per_page=100
 ## Success Metrics
 
 ### What Success Looks Like
+
 1. Can tag 100+ feeds in <5 minutes
 2. Filters apply instantly (<200ms)
 3. Tags persist across browser sessions
@@ -276,6 +302,7 @@ GET /v2/entries?per_page=100
 5. UI feels native to Feedbin
 
 ### Known Issues
+
 - Icon files are placeholders (need proper PNG generation)
 - No automated tests (manual testing only)
 - DOM selectors may break if Feedbin changes structure
@@ -284,6 +311,7 @@ GET /v2/entries?per_page=100
 ## Next Steps
 
 ### For Development
+
 1. Test with real Feedbin account
 2. Generate proper icon files
 3. Add error handling edge cases
@@ -291,6 +319,7 @@ GET /v2/entries?per_page=100
 5. Optimize for large feed counts
 
 ### For Production Use
+
 1. Create proper icons
 2. Package as .crx file
 3. Write user guide with screenshots
@@ -298,6 +327,7 @@ GET /v2/entries?per_page=100
 5. Set up issue tracking
 
 ### For Enhancement
+
 1. Add entry-level classification
 2. Implement custom filter rules
 3. Add keyboard shortcuts
@@ -324,6 +354,7 @@ MIT License - Free to use, modify, and distribute.
 Built to enhance [Feedbin](https://feedbin.com) without requiring any changes to the platform.
 
 LLM integration supports:
+
 - [Ollama](https://ollama.ai) - Local LLM runtime
 - [Anthropic Claude](https://anthropic.com) - Cloud LLM
 - [OpenAI](https://openai.com) - Cloud LLM
@@ -331,6 +362,7 @@ LLM integration supports:
 ## Questions?
 
 See:
+
 - `README.md` - Full documentation
 - `QUICKSTART.md` - 5-minute setup
 - `ARCHITECTURE.md` - Technical details

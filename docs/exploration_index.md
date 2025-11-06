@@ -5,6 +5,7 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
 ## Quick Navigation
 
 ### For First-Time Understanding
+
 1. **START HERE**: [QUICK_REFERENCE.md](QUICK_REFERENCE.md) (5 min read)
    - Quick lookup tables for all key concepts
    - File locations and what they do
@@ -23,6 +24,7 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
    - Priority-ranked tasks
 
 ### For Specific Tasks
+
 - **I want to understand the classify button** → CODEBASE_EXPLORATION.md - "Where the 'Classify' Button Lives"
 - **I want to implement duplicates** → IMPLEMENTATION_ROADMAP.md - "Feature 1: Duplicate Post Detection"
 - **I want to enable auto-classification** → IMPLEMENTATION_ROADMAP.md - "Feature 2: Automatic Classification"
@@ -33,6 +35,7 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
 ## What Was Explored
 
 ### Architecture
+
 - Content script (runs on feedbin.com)
 - Popup UI (settings management)
 - Background worker (service worker)
@@ -41,6 +44,7 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
 - All 5 components + how they communicate
 
 ### Current Features (Implemented ✅)
+
 - Entry-level classification (individual articles)
 - Smart filtering (show/hide by tags)
 - LLM integration (3 providers)
@@ -51,12 +55,14 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
 - Real-time CSS filtering
 
 ### Missing Features (Not Implemented ❌)
+
 - Duplicate post detection
 - Mark as read (for duplicates)
 - Auto-classification UI toggle (logic exists, needs UI)
 - Background duplicate checking
 
 ### Data Structures
+
 - Entry tags (what articles are tagged with)
 - Active filters (what user selected)
 - Feed tags (for context)
@@ -64,6 +70,7 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
 - Credentials (Feedbin auth)
 
 ### APIs Used
+
 - Feedbin `/v2/entries/{id}.json` (get/mark as read)
 - Feedbin `/v2/subscriptions` (list feeds)
 - Ollama `POST /api/generate`
@@ -75,6 +82,7 @@ Complete exploration and implementation guides for the Feedbin Power Tools exten
 ## Key Files Reference
 
 ### Source Code
+
 ```
 src/
 ├── content-script.js (833 lines)
@@ -92,6 +100,7 @@ src/
 ```
 
 ### Documentation (What You're Reading)
+
 ```
 ├── QUICK_REFERENCE.md (this folder)
 │   └─ Lookup tables and quick reference
@@ -110,33 +119,39 @@ src/
 ## Where to Find Things
 
 ### Understanding Posts/Entries
+
 - How they're fetched: CODEBASE_EXPLORATION.md - Content Script section
 - How they're classified: CODEBASE_EXPLORATION.md - LLM Integration section
 - Data structure: QUICK_REFERENCE.md - Entry Data Available
 - DOM selectors: CODEBASE_EXPLORATION.md - Important Notes for Implementation
 
 ### Understanding Filtering
+
 - How filters work: CODEBASE_EXPLORATION.md - Key Data Flows
 - Filter logic: QUICK_REFERENCE.md - Classification Pipeline
 - Filter UI: CODEBASE_EXPLORATION.md - Content Script section
 
 ### Understanding Classification
+
 - How it works: CODEBASE_EXPLORATION.md - Entry Classification Flow
 - LLM prompts: llm.js lines 59-144
 - Tag parsing: llm.js lines 502-584
 - Response validation: content-script.js lines 722-749
 
 ### Understanding Marking as Read
+
 - NOT CURRENTLY IMPLEMENTED
 - API endpoint: QUICK_REFERENCE.md - API Calls
 - Implementation guide: IMPLEMENTATION_ROADMAP.md - Feature 1, Step 2
 
 ### Understanding Duplicate Detection
+
 - NOT CURRENTLY IMPLEMENTED
 - Implementation guide: IMPLEMENTATION_ROADMAP.md - Feature 1, Steps 1-4
 - Example code: IMPLEMENTATION_ROADMAP.md - Feature 1
 
 ### Understanding Auto-Classification
+
 - Partially implemented (logic exists, UI missing)
 - Enable guide: IMPLEMENTATION_ROADMAP.md - Feature 2
 - Current code: content-script.js lines 41-43, 502-511
@@ -147,18 +162,21 @@ src/
 ## Implementation Priorities
 
 ### Quick Wins (Do This First)
+
 1. Add auto-classify toggle to popup
    - 20 lines of code
    - Logic already works
    - 2-3 hours including testing
 
 ### Medium Effort (Do This Next)
+
 2. Implement mark-as-read API calls
    - 30 lines in background.js
    - Foundation for duplicate detection
    - 4-6 hours including testing
 
 ### Complex (Do This Last)
+
 3. Implement duplicate detection
    - 80-100 lines across files
    - Highest value feature
@@ -169,12 +187,14 @@ src/
 ## Testing Checklist
 
 Before starting implementation:
+
 - [ ] Load extension in chrome://extensions
 - [ ] See toolbar on feedbin.com
 - [ ] Click "Classify Visible" and verify classification works
 - [ ] Check Service Worker logs for errors
 
 For each feature implemented:
+
 - [ ] Test with test data
 - [ ] Check console for errors
 - [ ] Verify Service Worker logs
@@ -186,24 +206,28 @@ For each feature implemented:
 ## Documentation Quality
 
 ### QUICK_REFERENCE.md
+
 - **Purpose**: Quick lookup, not a guide
 - **Best for**: "Where is X?" questions
 - **Length**: ~5 KB
 - **Reading time**: 5 minutes
 
 ### CODEBASE_EXPLORATION.md
+
 - **Purpose**: Complete technical reference
 - **Best for**: Understanding how things work
 - **Length**: ~16 KB
 - **Reading time**: 20 minutes
 
 ### IMPLEMENTATION_ROADMAP.md
+
 - **Purpose**: Step-by-step implementation guides
 - **Best for**: Building features
 - **Length**: ~9.5 KB
 - **Reading time**: 15 minutes
 
 ### EXPLORATION_INDEX.md
+
 - **Purpose**: Navigation and overview (this file)
 - **Best for**: Knowing what you need to read
 - **Length**: ~3 KB
@@ -250,6 +274,7 @@ A: CSS display:none on the DOM. See QUICK_REFERENCE.md - Filtering Flow
 ## Generated Files
 
 Created during exploration:
+
 - QUICK_REFERENCE.md (2025-11-04 10:19)
 - CODEBASE_EXPLORATION.md (2025-11-04 10:18)
 - IMPLEMENTATION_ROADMAP.md (2025-11-04 10:19)

@@ -13,11 +13,11 @@ A Chrome extension that supercharges your [Feedbin](https://feedbin.com) RSS rea
 
 ![Feedbin Power Tools Sidebar](docs/sidebar.png)
 
-*Filter toolbar showing "Show only" and "Hide" sections with tag pills. Click any tag to instantly filter your feed.*
+_Filter toolbar showing "Show only" and "Hide" sections with tag pills. Click any tag to instantly filter your feed._
 
 ![Feedbin Power Settings](docs/settings.png)
 
-*Extension popup for configuring LLM provider, Feedbin credentials, custom tags, and more!.*
+_Extension popup for configuring LLM provider, Feedbin credentials, custom tags, and more!._
 
 ---
 
@@ -37,7 +37,7 @@ Most RSS readers let you organize feeds by tags. But what if:
 
 Feedbin Power Tools uses AI to **tag individual articles**, not entire feeds:
 
-✅ **See only what you want** - Filter for "tech" and get tech posts from *any* feed
+✅ **See only what you want** - Filter for "tech" and get tech posts from _any_ feed
 ✅ **Hide distractions** - Block "politics" entries without unsubscribing from great blogs
 ✅ **Mix and match** - Show "ai" + "health", hide "sports"
 ✅ **Set it and forget it** - Auto-classification runs in the background
@@ -67,7 +67,7 @@ ollama serve
 ollama pull gemma3:4b  # Best balance of speed and accuracy
 ```
 
-*Alternatively, use Claude or OpenAI with API keys (costs ~$0.001-0.005 per entry).*
+_Alternatively, use Claude or OpenAI with API keys (costs ~$0.001-0.005 per entry)._
 
 ### Step 2: Install the Extension
 
@@ -140,11 +140,11 @@ Now you can filter for "ai" and see this entry, even if TechCrunch also posts ab
 
 Choose the AI provider that fits your needs:
 
-| Provider | Cost | Privacy | Speed | Setup |
-|----------|------|---------|-------|-------|
-| **Local (Ollama)** | Free | 100% private | Medium | Install Ollama |
-| **Claude** | ~$0.005/entry | Sent to Anthropic | Fast | API key |
-| **OpenAI** | ~$0.001/entry | Sent to OpenAI | Fast | API key |
+| Provider           | Cost          | Privacy           | Speed  | Setup          |
+| ------------------ | ------------- | ----------------- | ------ | -------------- |
+| **Local (Ollama)** | Free          | 100% private      | Medium | Install Ollama |
+| **Claude**         | ~$0.005/entry | Sent to Anthropic | Fast   | API key        |
+| **OpenAI**         | ~$0.001/entry | Sent to OpenAI    | Fast   | API key        |
 
 **Recommendation:** Start with **Ollama** for privacy and unlimited free usage.
 
@@ -206,6 +206,7 @@ All data is stored in your browser using Chrome's storage API:
 ```
 
 **Privacy notes:**
+
 - ✅ Everything stored locally in your browser
 - ✅ Feedbin credentials never leave your machine
 - ✅ With Ollama: Entry content never sent to internet
@@ -263,13 +264,13 @@ feedbin-extension/
 
 ## 🐛 Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| "Cannot connect to Ollama" | Run `ollama serve` in terminal |
-| "Authentication failed" | Verify Feedbin credentials, re-enter in popup |
-| "No entries to classify" | Refresh page, entries may already be tagged |
-| Classification slow | First run downloads model (one-time), or use Claude/OpenAI |
-| Tags not showing | Check browser console for errors, reload extension |
+| Issue                      | Solution                                                   |
+| -------------------------- | ---------------------------------------------------------- |
+| "Cannot connect to Ollama" | Run `ollama serve` in terminal                             |
+| "Authentication failed"    | Verify Feedbin credentials, re-enter in popup              |
+| "No entries to classify"   | Refresh page, entries may already be tagged                |
+| Classification slow        | First run downloads model (one-time), or use Claude/OpenAI |
+| Tags not showing           | Check browser console for errors, reload extension         |
 
 ---
 
@@ -295,6 +296,7 @@ A: Yes! Add your own tags in settings. The AI will prefer using your existing ta
 ## 🚧 Limitations & Roadmap
 
 **Current Limitations:**
+
 - Chrome only (not Firefox compatible yet)
 - Client-side filtering (entries still load, just hidden via CSS)
 - No cross-device sync (local storage only)
@@ -304,6 +306,7 @@ A: Yes! Add your own tags in settings. The AI will prefer using your existing ta
 ## 🤝 Contributing
 
 Pull requests welcome! Areas of interest:
+
 - Performance optimizations
 - Additional LLM providers (Gemini, Llama, etc.)
 - Firefox compatibility
@@ -324,6 +327,7 @@ MIT License - See LICENSE file
 Built to enhance [Feedbin](https://feedbin.com) without requiring server changes.
 
 LLM support:
+
 - [Ollama](https://ollama.ai) - Local LLM runtime
 - [Anthropic Claude](https://anthropic.com) - Cloud LLM
 - [OpenAI](https://openai.com) - Cloud LLM

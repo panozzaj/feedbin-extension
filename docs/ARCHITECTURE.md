@@ -47,6 +47,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 **Purpose**: Enhance Feedbin's UI with filtering capabilities
 
 **Responsibilities**:
+
 - Wait for Feedbin to load
 - Inject filter toolbar into the page
 - Read feed IDs from entry DOM elements
@@ -55,6 +56,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 - Listen for storage changes to update filters in real-time
 
 **Key Methods**:
+
 - `init()` - Initialize and inject UI
 - `injectFilterUI()` - Add toolbar to page
 - `applyFilters()` - Show/hide entries based on active filters
@@ -62,6 +64,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 - `observeEntries()` - Watch for dynamically loaded content
 
 **DOM Integration**:
+
 - Targets: `.entries-column`, `.entry-summary`
 - Extracts feed ID from: `.entry-feed-{id}` class or feed title matching
 - Injects toolbar before: `.entries-header`
@@ -71,6 +74,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 **Purpose**: Management interface for tagging and settings
 
 **Responsibilities**:
+
 - Authenticate with Feedbin
 - Fetch user's feed subscriptions
 - Configure LLM provider and API keys
@@ -79,6 +83,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 - Display all tags and manage them
 
 **Key Methods**:
+
 - `authenticate()` - Verify Feedbin credentials
 - `loadFeeds()` - Fetch subscriptions from Feedbin API
 - `autoTagFeed(feedId)` - Use LLM to classify single feed
@@ -87,6 +92,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 - `exportTags()` / `importTags()` - Backup/restore
 
 **API Integration**:
+
 - `GET /v2/subscriptions` - List feeds
 - `GET /v2/entries?per_page=100` - Recent entries for context
 - Uses HTTP Basic Auth with user credentials
@@ -96,6 +102,7 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 **Purpose**: Unified interface for multiple LLM providers
 
 **Responsibilities**:
+
 - Build classification prompts with feed context
 - Call appropriate LLM API based on settings
 - Parse and normalize LLM responses
@@ -104,24 +111,28 @@ The extension works entirely client-side, with no modifications needed to Feedbi
 **Providers**:
 
 #### Ollama (Local)
+
 - Endpoint: `http://localhost:11434/api/generate`
 - Model: `llama3.2` (configurable)
 - Pros: Free, private, unlimited, no API key
 - Cons: Requires local installation, slower on low-end hardware
 
 #### Claude (Anthropic)
+
 - Endpoint: `https://api.anthropic.com/v1/messages`
 - Model: `claude-3-5-sonnet-20241022`
 - Pros: Excellent quality, fast
 - Cons: Requires API key, costs per request
 
 #### OpenAI
+
 - Endpoint: `https://api.openai.com/v1/chat/completions`
 - Model: `gpt-4o-mini`
 - Pros: Good quality, widely available
 - Cons: Requires API key, costs per request
 
 **Classification Prompt Template**:
+
 ```
 You are helping classify RSS feeds into categories.
 
@@ -141,6 +152,7 @@ Respond with ONLY comma-separated tags.
 ```
 
 **Tag Parsing**:
+
 - Extracts comma/semicolon separated values
 - Normalizes to lowercase
 - Filters invalid characters
@@ -190,6 +202,7 @@ Respond with ONLY comma-separated tags.
 ```
 
 **Key Methods**:
+
 - `getFeedTags()` - All feed tag mappings
 - `setFeedTags(feedId, tags)` - Update tags for a feed
 - `getAllTags()` - Unique list of all tags
@@ -202,12 +215,14 @@ Respond with ONLY comma-separated tags.
 **Purpose**: Service worker for background tasks
 
 **Responsibilities**:
+
 - Handle cross-component messages
 - Update extension badge with filter count
 - Proxy API requests if needed (CORS)
 - Initialize on install
 
 **Badge Updates**:
+
 - Shows count of active filters (include + exclude)
 - Updates when filters change
 - Blue badge (#3b82f6) when active
@@ -215,18 +230,21 @@ Respond with ONLY comma-separated tags.
 ## Security Considerations
 
 ### Credentials Storage
+
 - Feedbin email/password stored in Chrome's local storage
 - Only sent to Feedbin's official API (api.feedbin.com)
 - Never transmitted elsewhere
 - Uses HTTPS for all API calls
 
 ### API Keys
+
 - LLM API keys stored locally
 - Only sent to respective provider APIs
 - User can use local LLM (Ollama) to avoid cloud providers
 - No telemetry or analytics
 
 ### Content Script Injection
+
 - Only runs on feedbin.com domain
 - Read-only access to page content
 - Does not modify Feedbin's data on server
@@ -235,16 +253,19 @@ Respond with ONLY comma-separated tags.
 ## Performance Optimizations
 
 ### DOM Mutations
+
 - Debounced filter application (100ms)
 - MutationObserver for dynamic content
 - Efficient querySelector caching
 
 ### API Calls
+
 - Batch fetch recent entries (100 at a time)
 - Cache feed metadata from `window.feedbin.data`
 - Rate limiting for bulk LLM classification (500ms between calls)
 
 ### Storage
+
 - Local storage only (no sync overhead)
 - Minimal data stored (just tags and settings)
 - No entry content stored, only feed-level metadata
@@ -252,9 +273,10 @@ Respond with ONLY comma-separated tags.
 ## Feedbin API Integration
 
 ### Authentication
+
 ```javascript
 // HTTP Basic Auth
-const authHeader = 'Basic ' + btoa(email + ':' + password);
+const authHeader = 'Basic ' + btoa(email + ':' + password)
 ```
 
 ### Endpoints Used
@@ -272,6 +294,7 @@ GET  /v2/entries?per_page=100
 ### Feed ID Extraction
 
 From entry DOM:
+
 1. **CSS Class**: `.entry-feed-{feed_id}`
 2. **Feed Title Matching**: `.feed-title` text → cached feed metadata
 3. **Global Data**: `window.feedbin.entries[entry_id].feed_id`
@@ -290,6 +313,7 @@ From entry DOM:
 Current: Include/Exclude by tag
 
 Future possibilities:
+
 - Regex matching on titles
 - Date range filters
 - Read/unread status
@@ -297,6 +321,7 @@ Future possibilities:
 - Custom feed groups
 
 Implementation:
+
 1. Add filter fields to `activeFilters` in storage.js
 2. Update `shouldShowEntry()` logic in content-script.js
 3. Add UI controls in `injectFilterUI()`
@@ -306,6 +331,7 @@ Implementation:
 Current: Feed-level only
 
 To add entry-level:
+
 1. Store `entryTags` in addition to `feedTags`
 2. Fetch full entry content for classification
 3. Update `shouldShowEntry()` to check entry tags

@@ -33,6 +33,7 @@ The extension works, but Chrome's permissions system is finicky. Here's the fix:
 3. Click "Connect to Feedbin"
 
 **Expected result**:
+
 - ✓ "Credentials saved!" (even if verification fails)
 - Shows your email address
 - You can now use the extension on feedbin.com
@@ -61,4 +62,3 @@ To verify your credentials are correct:
 2. When prompted, enter your Feedbin email and password
 3. If you see JSON data → credentials are good!
 4. If you see "Access denied" → wrong credentials
-

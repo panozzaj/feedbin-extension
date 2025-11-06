@@ -3,26 +3,34 @@
 ## Essential Classes & Attributes
 
 ### Entry List Item
+
 ```html
-<li class="entry-summary feed-id-123 [read] [selected] [starred]" 
-    data-entry-id="456" 
-    data-behavior="keyboard_navigable">
+<li
+  class="entry-summary feed-id-123 [read] [selected] [starred]"
+  data-entry-id="456"
+  data-behavior="keyboard_navigable"
+></li>
 ```
 
 **Key classes:**
+
 - `.read` - Appears faded
 - `.selected` - Highlighted (blue background)
 - `.starred` - Shows orange star icon
 
 ### Entry Link
+
 ```html
-<a class="entry-summary-link"
-   data-behavior="selectable open_item show_entry_content entry_info"
-   data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'
-   data-url="https://example.com/article">
+<a
+  class="entry-summary-link"
+  data-behavior="selectable open_item show_entry_content entry_info"
+  data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'
+  data-url="https://example.com/article"
+></a>
 ```
 
 ### Read Status Toggles (in Article View)
+
 ```html
 <!-- Mark as read/unread -->
 <form data-behavior="toggle_read" data-entry-id="456">
@@ -39,14 +47,14 @@
 
 ## State Classes Cheat Sheet
 
-| Class | Visual Effect |
-|-------|---------------|
-| `.read` | Gray text, faded appearance |
-| `.selected` | Blue highlight, white text |
-| `.starred` | Orange star visible |
-| `.media` | Media icon visible |
-| `.no-title` | Shows feed name instead |
-| `.always-unread` | Never appears faded |
+| Class            | Visual Effect               |
+| ---------------- | --------------------------- |
+| `.read`          | Gray text, faded appearance |
+| `.selected`      | Blue highlight, white text  |
+| `.starred`       | Orange star visible         |
+| `.media`         | Media icon visible          |
+| `.no-title`      | Shows feed name instead     |
+| `.always-unread` | Never appears faded         |
 
 ---
 
@@ -54,22 +62,23 @@
 
 ```html
 <!-- On list item -->
-data-entry-id="456"              <!-- Unique entry ID -->
+data-entry-id="456"
+<!-- Unique entry ID -->
 data-behavior="keyboard_navigable"
 
 <!-- On entry link -->
-data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'
-data-behavior="selectable open_item show_entry_content entry_info"
-data-url="https://example.com/article"
+data-entry-info='{"id":456,"feed_id":123,"published":1699000000}' data-behavior="selectable
+open_item show_entry_content entry_info" data-url="https://example.com/article"
 data-mark-as-read-path="/entries/456/mark_as_read"
 data-recently-read-path="/entries/456/recently_read"
 
 <!-- On control forms -->
-data-behavior="toggle_read"      <!-- Mark as read form -->
-data-behavior="toggle_starred"   <!-- Star form -->
-data-entry-id="456"
-data-feed-id="123"
-data-published="1699000000"      <!-- Unix timestamp -->
+data-behavior="toggle_read"
+<!-- Mark as read form -->
+data-behavior="toggle_starred"
+<!-- Star form -->
+data-entry-id="456" data-feed-id="123" data-published="1699000000"
+<!-- Unix timestamp -->
 ```
 
 ---
@@ -80,10 +89,12 @@ data-published="1699000000"      <!-- Unix timestamp -->
 <ul class="entries">
   <!-- UNREAD ENTRY -->
   <li class="entry-summary feed-id-123" data-entry-id="456" data-behavior="keyboard_navigable">
-    <a class="entry-summary-link" 
-       href="/entries/456"
-       data-behavior="selectable open_item show_entry_content entry_info"
-       data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'>
+    <a
+      class="entry-summary-link"
+      href="/entries/456"
+      data-behavior="selectable open_item show_entry_content entry_info"
+      data-entry-info='{"id":456,"feed_id":123,"published":1699000000}'
+    >
       <div class="entry-summary-inner">
         <div class="title-wrap">
           <div class="title">Article Title</div>
@@ -106,12 +117,20 @@ data-published="1699000000"      <!-- Unix timestamp -->
   </li>
 
   <!-- SELECTED ENTRY -->
-  <li class="entry-summary feed-id-123 selected" data-entry-id="458" data-behavior="keyboard_navigable">
+  <li
+    class="entry-summary feed-id-123 selected"
+    data-entry-id="458"
+    data-behavior="keyboard_navigable"
+  >
     <!-- Same structure, but with .selected class -->
   </li>
 
   <!-- STARRED ENTRY -->
-  <li class="entry-summary feed-id-123 starred" data-entry-id="459" data-behavior="keyboard_navigable">
+  <li
+    class="entry-summary feed-id-123 starred"
+    data-entry-id="459"
+    data-behavior="keyboard_navigable"
+  >
     <!-- Same structure, but with .starred class -->
   </li>
 </ul>
@@ -122,6 +141,7 @@ data-published="1699000000"      <!-- Unix timestamp -->
 ## Common Test Scenarios
 
 ### Scenario 1: Default List (Mix of States)
+
 ```html
 <ul class="entries">
   <!-- Unread entry -->
@@ -136,6 +156,7 @@ data-published="1699000000"      <!-- Unix timestamp -->
 ```
 
 ### Scenario 2: Entry Detail View
+
 ```html
 <div class="read toolbar-wrap" data-behavior="selected_entry_data" data-entry-id="456">
   <div class="entry-toolbar">

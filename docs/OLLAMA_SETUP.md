@@ -3,6 +3,7 @@
 ## Your Current Models
 
 You have these Ollama models installed:
+
 - `gemma3:4b` ← Recommended (good quality, fast)
 - `gemma3:1b` (smaller, faster but less accurate)
 
@@ -42,6 +43,7 @@ Then update the "Model" field in settings to match.
 ## Troubleshooting
 
 **"Cannot connect to Ollama"**:
+
 ```bash
 # Check if running
 curl http://localhost:11434/api/tags
@@ -51,6 +53,7 @@ ollama serve
 ```
 
 **Classification not working**:
+
 - Check browser console (F12) for errors
 - Make sure model name matches exactly: `gemma3:4b`
 - Try with a single entry first

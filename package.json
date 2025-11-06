@@ -8,8 +8,8 @@
   },
   "type": "module",
   "scripts": {
-    "format": "prettier --write \"src/**/*.{js,html,css}\"",
-    "format:check": "prettier --check \"src/**/*.{js,html,css}\"",
+    "format": "prettier --write \"src/**/*.{js,html,css}\" \"*.md\" \"docs/**/*.md\"",
+    "format:check": "prettier --check \"src/**/*.{js,html,css}\" \"*.md\" \"docs/**/*.md\"",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint --fix src/**/*.js",
     "prepare": "lefthook install"

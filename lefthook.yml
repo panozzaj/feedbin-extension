@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     prettier:
-      glob: 'src/**/*.{js,html,css}'
+      glob: '{src/**/*.{js,html,css},*.md,docs/**/*.md}'
       run: npx prettier --write {staged_files} && git add {staged_files}
     eslint:
       glob: 'src/**/*.js'
