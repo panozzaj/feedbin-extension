@@ -176,6 +176,8 @@ const Storage = {
       localLlmUrl: 'http://localhost:11434', // Ollama default
       localLlmModel: 'gemma3:4b', // Default model
       autoClassify: false, // Auto-classify entries (default: off for new users)
+      duplicateTimeWindowHours: 1, // Time window for duplicate detection (in hours)
+      duplicateDetection: 'none' // 'none', 'log', 'archive'
     };
   },
 

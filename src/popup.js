@@ -49,7 +49,8 @@ class PopupUI {
     document.getElementById('local-model').value = this.settings.localLlmModel || 'gemma3:4b';
     document.getElementById('claude-key').value = this.settings.claudeApiKey || '';
     document.getElementById('openai-key').value = this.settings.openaiApiKey || '';
-    document.getElementById('auto-classify').checked = this.settings.autoClassify !== false; // Default to true
+    document.getElementById('auto-classify').checked = this.settings.autoClassify === true;
+    document.getElementById('duplicate-detection').value = this.settings.duplicateDetection || 'none';
 
     // Show current user if logged in
     if (this.credentials.email) {
@@ -102,6 +103,14 @@ class PopupUI {
       this.settings.autoClassify = e.target.checked;
       await Storage.setSettings(this.settings);
       this.showStatus(`Auto-classification ${e.target.checked ? 'enabled' : 'disabled'}`, 'success');
+    });
+
+    // Duplicate detection dropdown (save immediately)
+    document.getElementById('duplicate-detection').addEventListener('change', async (e) => {
+      this.settings.duplicateDetection = e.target.value;
+      await Storage.setSettings(this.settings);
+      const labels = { none: 'disabled', log: 'logging only', archive: 'enabled with auto-archive' };
+      this.showStatus(`Duplicate detection: ${labels[e.target.value]}`, 'success');
     });
 
     // Tag management

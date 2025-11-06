@@ -45,6 +45,11 @@ class FeedbinPowerTools {
       console.log('[Feedbin Power Tools] Auto-classification disabled');
     }
 
+    // Detect duplicate entries - only on Unread page and if enabled
+    if (this.isUnreadPage() && this.settings.duplicateDetection !== 'none') {
+      this.detectDuplicates();
+    }
+
     this.initialized = true;
     console.log('[Feedbin Power Tools] Initialized successfully');
   }
@@ -511,6 +516,11 @@ class FeedbinPowerTools {
               }
             });
           }
+
+          // Check for duplicates when new entries appear (only on Unread page and if enabled)
+          if (newEntries.length > 0 && this.isUnreadPage() && this.settings.duplicateDetection !== 'none') {
+            this.detectDuplicates();
+          }
         }, 100);
       }
     });
@@ -554,6 +564,158 @@ class FeedbinPowerTools {
         this.applyFilters();
       }
     });
+  }
+
+  // ===== Helper Methods =====
+
+  isUnreadPage() {
+    // Check if the "Unread" collection is selected in the sidebar
+    const unreadItem = document.querySelector('[data-feed-id="collection_unread"]');
+    return unreadItem && unreadItem.classList.contains('selected');
+  }
+
+  // ===== Duplicate Detection =====
+
+  async fetchEntryContent(entryId, credentials) {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'fetchFeedData',
+        payload: {
+          url: `https://api.feedbin.com/v2/entries/${entryId}.json`,
+          credentials
+        }
+      });
+
+      if (response.success && response.data) {
+        // Return content length (could be HTML or text)
+        return response.data.content || response.data.summary || '';
+      }
+      return '';
+    } catch (error) {
+      console.error(`[Duplicates] Error fetching entry ${entryId}:`, error);
+      return '';
+    }
+  }
+
+  async detectDuplicates() {
+    // Time window for considering entries as duplicates (in hours)
+    const DUPLICATE_TIME_WINDOW_HOURS = this.settings.duplicateTimeWindowHours || 1;
+
+    console.log(`[Duplicates] 🔍 Checking for duplicate entries (within ${DUPLICATE_TIME_WINDOW_HOURS}h)...`);
+
+    const entries = document.querySelectorAll('.entry-summary[data-entry-id]');
+    if (entries.length === 0) {
+      console.log('[Duplicates] No entries found');
+      return;
+    }
+
+    // Group entries by normalized title
+    const entryGroups = new Map();
+
+    entries.forEach(entryEl => {
+      const entryId = entryEl.dataset.entryId;
+      const titleEl = entryEl.querySelector('.title');
+      const timeEl = entryEl.querySelector('time');
+
+      if (!titleEl || !entryId) return;
+
+      const title = titleEl.textContent.trim();
+      const normalizedTitle = title.toLowerCase().replace(/\s+/g, ' ');
+      const publishedTime = timeEl ? new Date(timeEl.getAttribute('datetime')) : null;
+
+      const entryData = {
+        id: entryId,
+        title: title,
+        normalizedTitle: normalizedTitle,
+        publishedTime: publishedTime,
+        bodyLength: null, // Will fetch from API
+        element: entryEl
+      };
+
+      if (!entryGroups.has(normalizedTitle)) {
+        entryGroups.set(normalizedTitle, []);
+      }
+      entryGroups.get(normalizedTitle).push(entryData);
+    });
+
+    // Find duplicates (same title, within time window)
+    let duplicateCount = 0;
+    const credentials = await Storage.getCredentials();
+
+    for (const [normalizedTitle, group] of entryGroups.entries()) {
+      if (group.length < 2) continue; // No duplicates
+
+      // Sort by publication time
+      group.sort((a, b) => {
+        if (!a.publishedTime || !b.publishedTime) return 0;
+        return a.publishedTime - b.publishedTime;
+      });
+
+      // Check each pair for time proximity
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          const entry1 = group[i];
+          const entry2 = group[j];
+
+          // Check if within time window
+          if (entry1.publishedTime && entry2.publishedTime) {
+            const timeDiff = Math.abs(entry2.publishedTime - entry1.publishedTime);
+            const timeWindowMs = DUPLICATE_TIME_WINDOW_HOURS * 60 * 60 * 1000;
+
+            if (timeDiff <= timeWindowMs) {
+              // Found potential duplicate! Fetch full content to compare body lengths
+              console.log(`[Duplicates] 📰 Found potential duplicate pair, fetching full content...`);
+
+              // Fetch full content for both entries
+              try {
+                const [content1, content2] = await Promise.all([
+                  this.fetchEntryContent(entry1.id, credentials),
+                  this.fetchEntryContent(entry2.id, credentials)
+                ]);
+
+                entry1.bodyLength = content1 ? content1.length : 0;
+                entry2.bodyLength = content2 ? content2.length : 0;
+
+                duplicateCount++;
+
+                // Determine which to archive (shorter body = less helpful)
+                let toArchive, toKeep;
+                if (entry1.bodyLength < entry2.bodyLength) {
+                  toArchive = entry1;
+                  toKeep = entry2;
+                } else if (entry2.bodyLength < entry1.bodyLength) {
+                  toArchive = entry2;
+                  toKeep = entry1;
+                } else {
+                  // Same body length, use publication time (earlier = less helpful)
+                  toArchive = entry1;
+                  toKeep = entry2;
+                }
+
+                const timeDiffMinutes = Math.round(timeDiff / (60 * 1000));
+                console.log(`[Duplicates] 📰 Duplicate confirmed:`);
+                console.log(`  [DRY-RUN] Would archive entry ${toArchive.id}: "${toArchive.title}"`);
+                console.log(`    Body length: ${toArchive.bodyLength.toLocaleString()} chars`);
+                console.log(`    Published: ${toArchive.publishedTime?.toLocaleString() || 'unknown'}`);
+                console.log(`  Would keep entry ${toKeep.id}: "${toKeep.title}"`);
+                console.log(`    Body length: ${toKeep.bodyLength.toLocaleString()} chars`);
+                console.log(`    Published: ${toKeep.publishedTime?.toLocaleString() || 'unknown'}`);
+                console.log(`  Time difference: ${timeDiffMinutes} minutes`);
+                console.log(`  Reason: ${toArchive.bodyLength < toKeep.bodyLength ? 'shorter body' : 'same length, published earlier'}`);
+              } catch (error) {
+                console.error(`[Duplicates] Error fetching content:`, error);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (duplicateCount === 0) {
+      console.log('[Duplicates] ✓ No duplicates found');
+    } else {
+      console.log(`[Duplicates] 📊 Found ${duplicateCount} duplicate pair(s) - see logs above for details`);
+    }
   }
 
   // ===== Classification =====

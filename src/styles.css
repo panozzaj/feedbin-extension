@@ -628,3 +628,17 @@
 .toggle-switch input:checked + .toggle-slider:hover {
   background-color: #2563eb;
 }
+
+/* Help icon */
+.help-icon {
+  display: inline-block;
+  margin-left: 4px;
+  cursor: help;
+  font-size: 14px;
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.help-icon:hover {
+  color: #3b82f6;
+}

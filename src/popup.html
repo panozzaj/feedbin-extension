@@ -92,6 +92,19 @@
             </label>
           </div>
         </div>
+
+        <div class="form-group">
+          <label class="form-label" for="duplicate-detection">
+            Duplicate Detection
+            <span class="help-icon" title="Finds entries with the same title published within 1 hour. 'None' disables detection. 'Log' shows what would be archived in console. 'Archive' automatically marks duplicates as read (keeps the entry with more content).">ℹ️</span>
+          </label>
+          <select id="duplicate-detection" class="form-select">
+            <option value="none">None (disabled)</option>
+            <option value="log">Log only (dry-run)</option>
+            <option value="archive">Archive duplicates</option>
+          </select>
+          <div class="help-text">Only runs on Unread view. Compares entries with identical titles published within 1 hour.</div>
+        </div>
       </div>
 
       <!-- Manual Tag Input -->
