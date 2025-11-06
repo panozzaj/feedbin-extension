@@ -15,7 +15,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["https://feedbin.com/*"],
+      "matches": ["https://feedbin.com/*", "http://localhost:3000/*"],
       "js": ["src/storage.js", "src/llm.js", "src/content-script.js"],
       "css": ["src/styles.css"],
       "run_at": "document_end"
