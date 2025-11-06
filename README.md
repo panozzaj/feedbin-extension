@@ -311,6 +311,10 @@ Pull requests welcome! Areas of interest:
 
 ---
 
+Possibly a more performant or flexible way to do this would be to use embeddings, but this is working well enough for me locally for now.
+
+---
+
 ## License
 
 MIT License - See LICENSE file
