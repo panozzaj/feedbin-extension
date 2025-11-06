@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/anthony/Documents/dev/claude-hooks/scripts/PostToolUse/prettier_changed_files"
+          },
+          {
+            "type": "command",
+            "command": "/Users/anthony/Documents/dev/claude-hooks/scripts/PostToolUse/eslint_changed_files"
+          }
+        ]
+      }
+    ]
+  }
+}

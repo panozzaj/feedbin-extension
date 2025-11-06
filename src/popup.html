@@ -1,142 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Feedbin Power Tools</title>
-  <link rel="stylesheet" href="vendor/tom-select.css">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="popup-container">
-    <div class="popup-header">
-      ⚡ Feedbin Power Tools
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedbin Power Tools</title>
+    <link rel="stylesheet" href="vendor/tom-select.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="popup-container">
+      <div class="popup-header">⚡ Feedbin Power Tools</div>
 
-    <div class="popup-content">
-      <!-- Status messages -->
-      <div id="status-container"></div>
+      <div class="popup-content">
+        <!-- Status messages -->
+        <div id="status-container"></div>
 
-      <!-- Current User Display -->
-      <div id="current-user"></div>
+        <!-- Current User Display -->
+        <div id="current-user"></div>
 
-      <!-- Auth Section -->
-      <div id="auth-section" class="section" style="display: none;">
-        <div class="section-title">🔐 Authentication</div>
-        <div class="form-group">
-          <label class="form-label" for="email">Feedbin Email</label>
-          <input type="email" id="email" class="form-input" placeholder="you@example.com">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="password">Password</label>
-          <input type="password" id="password" class="form-input" placeholder="Your Feedbin password">
-          <div class="help-text">Your credentials are stored locally and only used to access Feedbin's API.</div>
-        </div>
-        <button id="auth-btn" class="btn btn-primary">Connect to Feedbin</button>
-      </div>
-
-      <!-- LLM Settings Summary -->
-      <div id="llm-settings-summary"></div>
-
-      <!-- Settings Section -->
-      <div id="settings-section" class="section">
-        <div class="section-title">⚙️ LLM Settings</div>
-        <div class="form-group">
-          <label class="form-label" for="llm-provider">LLM Provider</label>
-          <select id="llm-provider" class="form-select">
-            <option value="local">Local (Ollama)</option>
-            <option value="claude">Claude (Anthropic)</option>
-            <option value="openai">OpenAI</option>
-          </select>
-        </div>
-
-        <!-- Local LLM Settings -->
-        <div id="local-settings" class="form-group">
-          <label class="form-label" for="local-url">Ollama URL</label>
-          <input type="text" id="local-url" class="form-input" placeholder="http://localhost:11434">
-          <label class="form-label" for="local-model" style="margin-top: 12px;">Model</label>
-          <input type="text" id="local-model" class="form-input" placeholder="gemma3:4b">
-          <div class="help-text">
-            Install Ollama from <a href="https://ollama.ai" target="_blank">ollama.ai</a>. Use any model like <code>gemma3:4b</code>, <code>llama3.2</code>, etc.
+        <!-- Auth Section -->
+        <div id="auth-section" class="section" style="display: none">
+          <div class="section-title">🔐 Authentication</div>
+          <div class="form-group">
+            <label class="form-label" for="email">Feedbin Email</label>
+            <input type="email" id="email" class="form-input" placeholder="you@example.com" />
           </div>
-        </div>
-
-        <!-- Claude Settings -->
-        <div id="claude-settings" class="form-group" style="display: none;">
-          <label class="form-label" for="claude-key">Claude API Key</label>
-          <input type="password" id="claude-key" class="form-input" placeholder="sk-ant-...">
-          <div class="help-text">Get your API key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
-        </div>
-
-        <!-- OpenAI Settings -->
-        <div id="openai-settings" class="form-group" style="display: none;">
-          <label class="form-label" for="openai-key">OpenAI API Key</label>
-          <input type="password" id="openai-key" class="form-input" placeholder="sk-...">
-          <div class="help-text">Get your API key from <a href="https://platform.openai.com" target="_blank">platform.openai.com</a></div>
-        </div>
-
-        <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
-      </div>
-
-      <!-- Classification Settings -->
-      <div class="section">
-        <div class="section-title">🤖 Classification Settings</div>
-        <div class="form-group">
-          <div class="toggle-setting">
-            <div class="toggle-info">
-              <div class="toggle-label">Automatically classify entries in background</div>
-              <div class="help-text">When enabled, entries are automatically classified as they appear. Disable this if you're debugging classification behavior.</div>
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              class="form-input"
+              placeholder="Your Feedbin password"
+            />
+            <div class="help-text">
+              Your credentials are stored locally and only used to access Feedbin's API.
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="auto-classify">
-              <span class="toggle-slider"></span>
-            </label>
+          </div>
+          <button id="auth-btn" class="btn btn-primary">Connect to Feedbin</button>
+        </div>
+
+        <!-- LLM Settings Summary -->
+        <div id="llm-settings-summary"></div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="section">
+          <div class="section-title">⚙️ LLM Settings</div>
+          <div class="form-group">
+            <label class="form-label" for="llm-provider">LLM Provider</label>
+            <select id="llm-provider" class="form-select">
+              <option value="local">Local (Ollama)</option>
+              <option value="claude">Claude (Anthropic)</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </div>
+
+          <!-- Local LLM Settings -->
+          <div id="local-settings" class="form-group">
+            <label class="form-label" for="local-url">Ollama URL</label>
+            <input
+              type="text"
+              id="local-url"
+              class="form-input"
+              placeholder="http://localhost:11434"
+            />
+            <label class="form-label" for="local-model" style="margin-top: 12px">Model</label>
+            <input type="text" id="local-model" class="form-input" placeholder="gemma3:4b" />
+            <div class="help-text">
+              Install Ollama from <a href="https://ollama.ai" target="_blank">ollama.ai</a>. Use any
+              model like <code>gemma3:4b</code>, <code>llama3.2</code>, etc.
+            </div>
+          </div>
+
+          <!-- Claude Settings -->
+          <div id="claude-settings" class="form-group" style="display: none">
+            <label class="form-label" for="claude-key">Claude API Key</label>
+            <input type="password" id="claude-key" class="form-input" placeholder="sk-ant-..." />
+            <div class="help-text">
+              Get your API key from
+              <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+            </div>
+          </div>
+
+          <!-- OpenAI Settings -->
+          <div id="openai-settings" class="form-group" style="display: none">
+            <label class="form-label" for="openai-key">OpenAI API Key</label>
+            <input type="password" id="openai-key" class="form-input" placeholder="sk-..." />
+            <div class="help-text">
+              Get your API key from
+              <a href="https://platform.openai.com" target="_blank">platform.openai.com</a>
+            </div>
+          </div>
+
+          <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+        </div>
+
+        <!-- Classification Settings -->
+        <div class="section">
+          <div class="section-title">🤖 Classification Settings</div>
+          <div class="form-group">
+            <div class="toggle-setting">
+              <div class="toggle-info">
+                <div class="toggle-label">Automatically classify entries in background</div>
+                <div class="help-text">
+                  When enabled, entries are automatically classified as they appear. Disable this if
+                  you're debugging classification behavior.
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="auto-classify" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="duplicate-detection">Duplicate Detection</label>
+            <select id="duplicate-detection" class="form-select">
+              <option value="none" data-help="Duplicate detection is disabled">None</option>
+              <option value="log" data-help="Logs what would be archived to JavaScript console">
+                Log only
+              </option>
+              <option
+                value="archive"
+                data-help="Automatically marks duplicates as read (keeps entry with longest content)"
+              >
+                Archive
+              </option>
+            </select>
+            <div class="help-text">
+              Finds entries with identical titles published within 1 hour. Only runs on Unread view.
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="duplicate-detection">Duplicate Detection</label>
-          <select id="duplicate-detection" class="form-select">
-            <option value="none" data-help="Duplicate detection is disabled">None</option>
-            <option value="log" data-help="Logs what would be archived to JavaScript console">Log only</option>
-            <option value="archive" data-help="Automatically marks duplicates as read (keeps entry with longest content)">Archive</option>
-          </select>
-          <div class="help-text">Finds entries with identical titles published within 1 hour. Only runs on Unread view.</div>
+        <!-- Manual Tag Input -->
+        <div class="section">
+          <div class="section-title">➕ Add Custom Tag</div>
+          <div class="tag-input-container">
+            <input
+              type="text"
+              id="new-tag-input"
+              class="form-input"
+              placeholder="e.g., tech, politics, personal"
+            />
+            <button id="add-tag-btn" class="btn btn-primary">Add Tag</button>
+          </div>
+          <div class="help-text">
+            Add tags to use for classifying entries. Click "🤖 Classify" in the sidebar to tag
+            visible entries.
+          </div>
         </div>
-      </div>
 
-      <!-- Manual Tag Input -->
-      <div class="section">
-        <div class="section-title">➕ Add Custom Tag</div>
-        <div class="tag-input-container">
-          <input type="text" id="new-tag-input" class="form-input" placeholder="e.g., tech, politics, personal">
-          <button id="add-tag-btn" class="btn btn-primary">Add Tag</button>
+        <!-- Current Tags from Entries -->
+        <div class="section">
+          <div class="section-title">📋 Entry Tags</div>
+          <div
+            id="all-tags-list"
+            style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px"
+          >
+            <span style="color: #9ca3af; font-size: 13px"
+              >No tags yet - classify some entries to get started</span
+            >
+          </div>
+          <div class="help-text" style="margin-top: 12px">
+            Tags discovered from classifying entries. Use these in the sidebar filters.
+          </div>
         </div>
-        <div class="help-text">Add tags to use for classifying entries. Click "🤖 Classify" in the sidebar to tag visible entries.</div>
-      </div>
 
-      <!-- Current Tags from Entries -->
-      <div class="section">
-        <div class="section-title">📋 Entry Tags</div>
-        <div id="all-tags-list" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px;">
-          <span style="color: #9ca3af; font-size: 13px;">No tags yet - classify some entries to get started</span>
-        </div>
-        <div class="help-text" style="margin-top: 12px;">Tags discovered from classifying entries. Use these in the sidebar filters.</div>
-      </div>
-
-      <!-- Stats -->
-      <div class="section">
-        <div class="section-title">📊 Stats</div>
-        <div id="entry-stats" style="font-size: 13px; color: #6b7280;">
-          Loading...
+        <!-- Stats -->
+        <div class="section">
+          <div class="section-title">📊 Stats</div>
+          <div id="entry-stats" style="font-size: 13px; color: #6b7280">Loading...</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="vendor/tom-select.js"></script>
-  <script src="storage.js"></script>
-  <script src="llm.js"></script>
-  <script src="popup.js"></script>
-</body>
+    <script src="vendor/tom-select.js"></script>
+    <script src="storage.js"></script>
+    <script src="llm.js"></script>
+    <script src="popup.js"></script>
+  </body>
 </html>

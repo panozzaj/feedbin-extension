@@ -1,0 +1,7 @@
+node_modules/
+tmp/
+docs/
+*.md
+*.json
+icons/
+src/vendor/

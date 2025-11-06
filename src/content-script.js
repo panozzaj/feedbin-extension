@@ -3,124 +3,125 @@
 
 class FeedbinPowerTools {
   constructor() {
-    this.initialized = false;
-    this.activeFilters = { includeTags: [], excludeTags: [] };
-    this.entryTags = {};
-    this.settings = {};
-    this.classificationQueue = [];
-    this.isClassifying = false;
+    this.initialized = false
+    this.activeFilters = { includeTags: [], excludeTags: [] }
+    this.entryTags = {}
+    this.settings = {}
+    this.classificationQueue = []
+    this.isClassifying = false
   }
 
   async init() {
-    if (this.initialized) return;
+    if (this.initialized) return
 
-    console.log('[Feedbin Power Tools] Initializing...');
+    console.log('[Feedbin Power Tools] Initializing...')
 
     // Wait for Feedbin to load
-    await this.waitForFeedbin();
+    await this.waitForFeedbin()
 
     // Inject UI immediately (before loading data)
-    this.injectFilterUI();
+    this.injectFilterUI()
 
     // Load data from storage (in background)
-    await this.loadData();
+    await this.loadData()
 
     // Update UI with loaded data
-    await this.renderFilterPills();
+    await this.renderFilterPills()
 
     // Apply initial filters
-    this.applyFilters();
+    this.applyFilters()
 
     // Observe DOM changes for dynamically loaded entries
-    this.observeEntries();
+    this.observeEntries()
 
     // Listen for storage changes (from popup)
-    this.listenForStorageChanges();
+    this.listenForStorageChanges()
 
     // Auto-classify visible entries in the background if enabled
-    if (this.settings.autoClassify !== false) { // Default to true
-      console.log('[Feedbin Power Tools] Starting automatic background classification...');
-      this.queueVisibleEntriesForClassification();
+    if (this.settings.autoClassify !== false) {
+      // Default to true
+      console.log('[Feedbin Power Tools] Starting automatic background classification...')
+      this.queueVisibleEntriesForClassification()
     } else {
-      console.log('[Feedbin Power Tools] Auto-classification disabled');
+      console.log('[Feedbin Power Tools] Auto-classification disabled')
     }
 
     // Detect duplicate entries - only on Unread page and if enabled
     if (this.isUnreadPage() && this.settings.duplicateDetection !== 'none') {
-      this.detectDuplicates();
+      this.detectDuplicates()
     }
 
-    this.initialized = true;
-    console.log('[Feedbin Power Tools] Initialized successfully');
+    this.initialized = true
+    console.log('[Feedbin Power Tools] Initialized successfully')
   }
 
   waitForFeedbin() {
     return new Promise((resolve) => {
       // Check if feed list exists in left nav
-      const feedList = document.querySelector('ul.feed-list');
+      const feedList = document.querySelector('ul.feed-list')
 
       if (feedList) {
-        console.log('[Feedbin Power Tools] Found feed list immediately');
-        resolve();
-        return;
+        console.log('[Feedbin Power Tools] Found feed list immediately')
+        resolve()
+        return
       }
 
       // Poll for feed list
       const checkInterval = setInterval(() => {
-        const feedList = document.querySelector('ul.feed-list');
+        const feedList = document.querySelector('ul.feed-list')
         if (feedList) {
-          console.log('[Feedbin Power Tools] Found feed list after polling');
-          clearInterval(checkInterval);
-          resolve();
+          console.log('[Feedbin Power Tools] Found feed list after polling')
+          clearInterval(checkInterval)
+          resolve()
         }
-      }, 50); // Check every 50ms
+      }, 50) // Check every 50ms
 
       // Timeout after 3 seconds
       setTimeout(() => {
-        clearInterval(checkInterval);
-        console.warn('[Feedbin Power Tools] Timeout waiting for feed list');
-        resolve(); // Continue anyway
-      }, 3000);
-    });
+        clearInterval(checkInterval)
+        console.warn('[Feedbin Power Tools] Timeout waiting for feed list')
+        resolve() // Continue anyway
+      }, 3000)
+    })
   }
 
   async loadData() {
-    this.entryTags = await Storage.getEntryTags();
-    this.activeFilters = await Storage.getActiveFilters();
-    this.settings = await Storage.getSettings();
+    this.entryTags = await Storage.getEntryTags()
+    this.activeFilters = await Storage.getActiveFilters()
+    this.settings = await Storage.getSettings()
   }
 
   injectFilterUI() {
-    console.log('[Feedbin Power Tools] 🔍 Looking for feed list in left nav...');
+    console.log('[Feedbin Power Tools] 🔍 Looking for feed list in left nav...')
 
     // Find the feed list in the left nav
-    const feedList = document.querySelector('ul.feed-list');
+    const feedList = document.querySelector('ul.feed-list')
 
     if (!feedList) {
-      console.warn('[Feedbin Power Tools] ❌ Could not find feed list, retrying in 1s...');
+      console.warn('[Feedbin Power Tools] ❌ Could not find feed list, retrying in 1s...')
       console.log('[Feedbin Power Tools] Available elements:', {
         body: !!document.body,
         main: !!document.querySelector('main'),
         feedList: !!document.querySelector('ul.feed-list'),
-        nav: !!document.querySelector('nav')
-      });
-      setTimeout(() => this.injectFilterUI(), 1000);
-      return;
+        nav: !!document.querySelector('nav'),
+      })
+      setTimeout(() => this.injectFilterUI(), 1000)
+      return
     }
 
     // Check if already injected
     if (document.getElementById('feedbin-power-tools-toolbar')) {
-      console.log('[Feedbin Power Tools] ⚠️ Toolbar already injected');
-      return;
+      console.log('[Feedbin Power Tools] ⚠️ Toolbar already injected')
+      return
     }
 
-    console.log('[Feedbin Power Tools] ✅ Found feed list:', feedList);
-    console.log('[Feedbin Power Tools] 🔨 Injecting toolbar after feed list...');
+    console.log('[Feedbin Power Tools] ✅ Found feed list:', feedList)
+    console.log('[Feedbin Power Tools] 🔨 Injecting toolbar after feed list...')
 
     // Create toolbar
-    const toolbar = document.createElement('div');
-    toolbar.id = 'feedbin-power-tools-toolbar';
-    toolbar.className = 'power-tools-toolbar';
+    const toolbar = document.createElement('div')
+    toolbar.id = 'feedbin-power-tools-toolbar'
+    toolbar.className = 'power-tools-toolbar'
 
     toolbar.innerHTML = `
       <div class="power-tools-header">
@@ -148,430 +149,444 @@ class FeedbinPowerTools {
           <button id="manage-tags-btn" class="filter-action-btn primary">Settings</button>
         </div>
       </div>
-    `;
+    `
 
     // Insert as sibling after feed list
-    feedList.parentNode.insertBefore(toolbar, feedList.nextSibling);
+    feedList.parentNode.insertBefore(toolbar, feedList.nextSibling)
 
-    console.log('[Feedbin Power Tools] ✅ Toolbar injected successfully');
+    console.log('[Feedbin Power Tools] ✅ Toolbar injected successfully')
 
     // Add event listeners immediately
-    this.attachToolbarListeners();
+    this.attachToolbarListeners()
 
     // Note: renderFilterPills() will be called after data loads in init()
   }
 
   async renderFilterPills() {
-    const includeTags = document.getElementById('include-tags');
-    const excludeTags = document.getElementById('exclude-tags');
+    const includeTags = document.getElementById('include-tags')
+    const excludeTags = document.getElementById('exclude-tags')
 
-    if (!includeTags || !excludeTags) return;
+    if (!includeTags || !excludeTags) return
 
     // Get all available tags
-    const allTags = await Storage.getAllTags();
+    const allTags = await Storage.getAllTags()
 
     // Render include tags
-    includeTags.innerHTML = '';
-    allTags.forEach(tag => {
-      const pill = this.createTagPill(tag, 'include', this.activeFilters.includeTags.includes(tag));
-      includeTags.appendChild(pill);
-    });
+    includeTags.innerHTML = ''
+    allTags.forEach((tag) => {
+      const pill = this.createTagPill(tag, 'include', this.activeFilters.includeTags.includes(tag))
+      includeTags.appendChild(pill)
+    })
 
     // Render exclude tags
-    excludeTags.innerHTML = '';
-    allTags.forEach(tag => {
-      const pill = this.createTagPill(tag, 'exclude', this.activeFilters.excludeTags.includes(tag));
-      excludeTags.appendChild(pill);
-    });
+    excludeTags.innerHTML = ''
+    allTags.forEach((tag) => {
+      const pill = this.createTagPill(tag, 'exclude', this.activeFilters.excludeTags.includes(tag))
+      excludeTags.appendChild(pill)
+    })
 
     // Show message if no tags
     if (allTags.length === 0) {
-      includeTags.innerHTML = '<span class="no-tags-message">No tags yet. Click "🤖 Classify Visible" to get started.</span>';
-      excludeTags.innerHTML = '';
+      includeTags.innerHTML =
+        '<span class="no-tags-message">No tags yet. Click "🤖 Classify Visible" to get started.</span>'
+      excludeTags.innerHTML = ''
     }
   }
 
   createTagPill(tag, type, active) {
-    const pill = document.createElement('button');
-    pill.className = `tag-pill ${active ? 'active' : ''} ${type}`;
-    pill.textContent = tag;
-    pill.dataset.tag = tag;
-    pill.dataset.type = type;
+    const pill = document.createElement('button')
+    pill.className = `tag-pill ${active ? 'active' : ''} ${type}`
+    pill.textContent = tag
+    pill.dataset.tag = tag
+    pill.dataset.type = type
 
     pill.addEventListener('click', () => {
-      this.toggleFilter(tag, type);
-    });
+      this.toggleFilter(tag, type)
+    })
 
-    return pill;
+    return pill
   }
 
   async toggleFilter(tag, type) {
     if (type === 'include') {
-      const index = this.activeFilters.includeTags.indexOf(tag);
+      const index = this.activeFilters.includeTags.indexOf(tag)
       if (index > -1) {
-        this.activeFilters.includeTags.splice(index, 1);
+        this.activeFilters.includeTags.splice(index, 1)
       } else {
-        this.activeFilters.includeTags.push(tag);
+        this.activeFilters.includeTags.push(tag)
         // Remove from exclude if present
-        const excludeIndex = this.activeFilters.excludeTags.indexOf(tag);
+        const excludeIndex = this.activeFilters.excludeTags.indexOf(tag)
         if (excludeIndex > -1) {
-          this.activeFilters.excludeTags.splice(excludeIndex, 1);
+          this.activeFilters.excludeTags.splice(excludeIndex, 1)
         }
       }
     } else {
-      const index = this.activeFilters.excludeTags.indexOf(tag);
+      const index = this.activeFilters.excludeTags.indexOf(tag)
       if (index > -1) {
-        this.activeFilters.excludeTags.splice(index, 1);
+        this.activeFilters.excludeTags.splice(index, 1)
       } else {
-        this.activeFilters.excludeTags.push(tag);
+        this.activeFilters.excludeTags.push(tag)
         // Remove from include if present
-        const includeIndex = this.activeFilters.includeTags.indexOf(tag);
+        const includeIndex = this.activeFilters.includeTags.indexOf(tag)
         if (includeIndex > -1) {
-          this.activeFilters.includeTags.splice(includeIndex, 1);
+          this.activeFilters.includeTags.splice(includeIndex, 1)
         }
       }
     }
 
     // Save to storage
-    await Storage.setActiveFilters(this.activeFilters);
+    await Storage.setActiveFilters(this.activeFilters)
 
     // Update UI
-    await this.renderFilterPills();
-    this.updateToggleButton();
+    await this.renderFilterPills()
+    this.updateToggleButton()
 
     // Apply filters
-    this.applyFilters();
+    this.applyFilters()
   }
 
   attachToolbarListeners() {
-    const toggleBtn = document.getElementById('power-tools-toggle');
-    const classifyBtn = document.getElementById('classify-visible-btn');
-    const clearBtn = document.getElementById('clear-filters-btn');
-    const manageBtn = document.getElementById('manage-tags-btn');
+    const toggleBtn = document.getElementById('power-tools-toggle')
+    const classifyBtn = document.getElementById('classify-visible-btn')
+    const clearBtn = document.getElementById('clear-filters-btn')
+    const manageBtn = document.getElementById('manage-tags-btn')
 
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
-        const filtersDiv = document.getElementById('power-tools-filters');
-        filtersDiv.classList.toggle('active');
-        this.updateToggleButton();
-      });
+        const filtersDiv = document.getElementById('power-tools-filters')
+        filtersDiv.classList.toggle('active')
+        this.updateToggleButton()
+      })
     }
 
     if (classifyBtn) {
       classifyBtn.addEventListener('click', () => {
-        this.queueVisibleEntriesForClassification();
-      });
+        this.queueVisibleEntriesForClassification()
+      })
     }
 
     if (clearBtn) {
       clearBtn.addEventListener('click', async () => {
-        this.activeFilters = { includeTags: [], excludeTags: [] };
-        await Storage.setActiveFilters(this.activeFilters);
-        this.renderFilterPills();
-        this.updateToggleButton();
-        this.applyFilters();
-      });
+        this.activeFilters = { includeTags: [], excludeTags: [] }
+        await Storage.setActiveFilters(this.activeFilters)
+        this.renderFilterPills()
+        this.updateToggleButton()
+        this.applyFilters()
+      })
     }
 
     if (manageBtn) {
       manageBtn.addEventListener('click', () => {
         // Open popup
-        chrome.runtime.sendMessage({ action: 'openPopup' });
-      });
+        chrome.runtime.sendMessage({ action: 'openPopup' })
+      })
     }
   }
 
   updateToggleButton() {
-    const toggleBtn = document.getElementById('power-tools-toggle');
-    const filtersDiv = document.getElementById('power-tools-filters');
+    const toggleBtn = document.getElementById('power-tools-toggle')
+    const filtersDiv = document.getElementById('power-tools-filters')
     if (toggleBtn && filtersDiv) {
-      const isExpanded = filtersDiv.classList.contains('active');
-      toggleBtn.textContent = isExpanded ? '▼' : '▶';
-      toggleBtn.title = isExpanded ? 'Hide filters' : 'Show filters';
+      const isExpanded = filtersDiv.classList.contains('active')
+      toggleBtn.textContent = isExpanded ? '▼' : '▶'
+      toggleBtn.title = isExpanded ? 'Hide filters' : 'Show filters'
     }
   }
 
   applyFilters() {
-    const entries = document.querySelectorAll('.entry-summary[data-entry-id]');
+    const entries = document.querySelectorAll('.entry-summary[data-entry-id]')
 
-    console.log(`[Feedbin Power Tools] Applying filters to ${entries.length} entries`);
+    console.log(`[Feedbin Power Tools] Applying filters to ${entries.length} entries`)
 
-    let hiddenCount = 0;
-    let shownCount = 0;
+    let hiddenCount = 0
+    let shownCount = 0
 
-    entries.forEach(entryEl => {
-      const entryId = entryEl.dataset.entryId;
+    entries.forEach((entryEl) => {
+      const entryId = entryEl.dataset.entryId
 
       if (!entryId) {
-        entryEl.style.display = '';
-        shownCount++;
-        return;
+        entryEl.style.display = ''
+        shownCount++
+        return
       }
 
-      const shouldShow = this.shouldShowEntry(entryId);
+      const shouldShow = this.shouldShowEntry(entryId)
 
       if (shouldShow) {
-        entryEl.style.display = '';
-        shownCount++;
+        entryEl.style.display = ''
+        shownCount++
       } else {
-        entryEl.style.display = 'none';
-        hiddenCount++;
+        entryEl.style.display = 'none'
+        hiddenCount++
       }
 
       // Add tag indicator or classify button
-      this.addTagIndicator(entryEl, entryId);
-    });
+      this.addTagIndicator(entryEl, entryId)
+    })
 
-    console.log(`[Feedbin Power Tools] Shown: ${shownCount}, Hidden: ${hiddenCount}`);
+    console.log(`[Feedbin Power Tools] Shown: ${shownCount}, Hidden: ${hiddenCount}`)
   }
 
   shouldShowEntry(entryId) {
-    const entryTagData = this.entryTags[entryId];
+    const entryTagData = this.entryTags[entryId]
 
     // If no filters active, show everything
-    if (this.activeFilters.includeTags.length === 0 && this.activeFilters.excludeTags.length === 0) {
-      return true;
+    if (
+      this.activeFilters.includeTags.length === 0 &&
+      this.activeFilters.excludeTags.length === 0
+    ) {
+      return true
     }
 
     // If entry has no tags
     if (!entryTagData || !entryTagData.tags || entryTagData.tags.length === 0) {
       // Show untagged entries only if no include filters are active
-      return this.activeFilters.includeTags.length === 0;
+      return this.activeFilters.includeTags.length === 0
     }
 
-    const entryTags = entryTagData.tags;
+    const entryTags = entryTagData.tags
 
     // Check exclude filters first (higher priority)
     if (this.activeFilters.excludeTags.length > 0) {
-      const hasExcludedTag = entryTags.some(tag => this.activeFilters.excludeTags.includes(tag));
+      const hasExcludedTag = entryTags.some((tag) => this.activeFilters.excludeTags.includes(tag))
       if (hasExcludedTag) {
-        return false;
+        return false
       }
     }
 
     // Check include filters
     if (this.activeFilters.includeTags.length > 0) {
-      const hasIncludedTag = entryTags.some(tag => this.activeFilters.includeTags.includes(tag));
-      return hasIncludedTag;
+      const hasIncludedTag = entryTags.some((tag) => this.activeFilters.includeTags.includes(tag))
+      return hasIncludedTag
     }
 
     // No include filters, and passed exclude check
-    return true;
+    return true
   }
 
   addTagIndicator(entryEl, entryId) {
     // Remove ALL existing power tools elements from this entry
-    entryEl.querySelectorAll('.power-tools-tags-container').forEach(el => el.remove());
-    entryEl.querySelectorAll('.power-tools-classify-btn').forEach(el => el.remove());
+    entryEl.querySelectorAll('.power-tools-tags-container').forEach((el) => el.remove())
+    entryEl.querySelectorAll('.power-tools-classify-btn').forEach((el) => el.remove())
 
     // Ensure entryId is a string for consistent lookup
-    entryId = String(entryId);
+    entryId = String(entryId)
 
-    const entryTagData = this.entryTags[entryId];
+    const entryTagData = this.entryTags[entryId]
 
     // Find the summary-content div where we'll add the button/indicator
-    const summaryContent = entryEl.querySelector('.summary-content');
+    const summaryContent = entryEl.querySelector('.summary-content')
     if (!summaryContent) {
-      console.warn('[Feedbin Power Tools] No summary-content found for entry:', entryId);
-      return;
+      console.warn('[Feedbin Power Tools] No summary-content found for entry:', entryId)
+      return
     }
 
     if (!entryTagData || !entryTagData.tags || entryTagData.tags.length === 0) {
       // No tags - show classify button
-      const classifyBtn = document.createElement('button');
-      classifyBtn.className = 'power-tools-classify-btn';
-      classifyBtn.textContent = '🤖 Classify';
-      classifyBtn.title = 'Classify this entry';
+      const classifyBtn = document.createElement('button')
+      classifyBtn.className = 'power-tools-classify-btn'
+      classifyBtn.textContent = '🤖 Classify'
+      classifyBtn.title = 'Classify this entry'
       classifyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.classifySingleEntry(entryId);
-      });
+        e.preventDefault()
+        e.stopPropagation()
+        this.classifySingleEntry(entryId)
+      })
 
       // Insert at the end of summary-content
-      summaryContent.appendChild(classifyBtn);
-      return;
+      summaryContent.appendChild(classifyBtn)
+      return
     }
 
     // Has tags - show tag indicators (one per tag with delete button)
-    const tagsContainer = document.createElement('div');
-    tagsContainer.className = 'power-tools-tags-container';
+    const tagsContainer = document.createElement('div')
+    tagsContainer.className = 'power-tools-tags-container'
 
-    entryTagData.tags.forEach(tag => {
-      const tagEl = document.createElement('span');
-      tagEl.className = 'power-tools-tag-pill';
+    entryTagData.tags.forEach((tag) => {
+      const tagEl = document.createElement('span')
+      tagEl.className = 'power-tools-tag-pill'
 
       // Set tooltip with individual reason for this tag
       if (entryTagData.tagReasons && entryTagData.tagReasons[tag]) {
-        tagEl.title = entryTagData.tagReasons[tag];
+        tagEl.title = entryTagData.tagReasons[tag]
       }
 
-      const labelEl = document.createElement('span');
-      labelEl.className = 'power-tools-tag-label';
-      labelEl.textContent = tag;
+      const labelEl = document.createElement('span')
+      labelEl.className = 'power-tools-tag-label'
+      labelEl.textContent = tag
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'power-tools-tag-delete';
-      deleteBtn.textContent = '×';
-      deleteBtn.title = 'Remove tag';
+      const deleteBtn = document.createElement('button')
+      deleteBtn.className = 'power-tools-tag-delete'
+      deleteBtn.textContent = '×'
+      deleteBtn.title = 'Remove tag'
       deleteBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await this.removeTagFromEntry(entryId, tag);
-      });
+        e.preventDefault()
+        e.stopPropagation()
+        await this.removeTagFromEntry(entryId, tag)
+      })
 
-      tagEl.appendChild(labelEl);
-      tagEl.appendChild(deleteBtn);
-      tagsContainer.appendChild(tagEl);
-    });
+      tagEl.appendChild(labelEl)
+      tagEl.appendChild(deleteBtn)
+      tagsContainer.appendChild(tagEl)
+    })
 
     // Insert at the end of summary-content
-    summaryContent.appendChild(tagsContainer);
+    summaryContent.appendChild(tagsContainer)
   }
 
   async removeTagFromEntry(entryId, tagToRemove) {
-    const entryTagData = this.entryTags[entryId];
-    if (!entryTagData) return;
+    const entryTagData = this.entryTags[entryId]
+    if (!entryTagData) return
 
     // Remove the tag
-    const updatedTags = entryTagData.tags.filter(t => t !== tagToRemove);
+    const updatedTags = entryTagData.tags.filter((t) => t !== tagToRemove)
 
     if (updatedTags.length === 0) {
       // No tags left - remove entry from storage
-      delete this.entryTags[entryId];
-      const allTags = await Storage.getEntryTags();
-      delete allTags[entryId];
-      await chrome.storage.local.set({ entryTags: allTags });
+      delete this.entryTags[entryId]
+      const allTags = await Storage.getEntryTags()
+      delete allTags[entryId]
+      await chrome.storage.local.set({ entryTags: allTags })
     } else {
       // Update with remaining tags (preserve reasons for remaining tags)
-      const tagReasons = entryTagData.tagReasons || {};
-      const updatedTagReasons = {};
-      updatedTags.forEach(tag => {
+      const tagReasons = entryTagData.tagReasons || {}
+      const updatedTagReasons = {}
+      updatedTags.forEach((tag) => {
         if (tagReasons[tag]) {
-          updatedTagReasons[tag] = tagReasons[tag];
+          updatedTagReasons[tag] = tagReasons[tag]
         }
-      });
-      await Storage.setEntryTags(entryId, updatedTags, updatedTagReasons);
-      this.entryTags[entryId] = { tags: updatedTags, tagReasons: updatedTagReasons, updatedAt: Date.now() };
+      })
+      await Storage.setEntryTags(entryId, updatedTags, updatedTagReasons)
+      this.entryTags[entryId] = {
+        tags: updatedTags,
+        tagReasons: updatedTagReasons,
+        updatedAt: Date.now(),
+      }
     }
 
     // Refresh UI
-    await this.renderFilterPills();
-    this.applyFilters();
+    await this.renderFilterPills()
+    this.applyFilters()
   }
 
   async classifySingleEntry(entryId) {
-    const entryEl = document.querySelector(`.entry-summary[data-entry-id="${entryId}"]`);
-    if (!entryEl) return;
+    const entryEl = document.querySelector(`.entry-summary[data-entry-id="${entryId}"]`)
+    if (!entryEl) return
 
     // Show loading state
-    const btn = entryEl.querySelector('.power-tools-classify-btn');
+    const btn = entryEl.querySelector('.power-tools-classify-btn')
     if (btn) {
-      btn.textContent = '⏳';
-      btn.disabled = true;
+      btn.textContent = '⏳'
+      btn.disabled = true
     }
 
     // Classify
-    await this.classifyEntry(entryId);
+    await this.classifyEntry(entryId)
 
     // Update button (will be replaced by tag indicator if successful)
     if (btn && !this.entryTags[entryId]) {
-      btn.textContent = '🤖';
-      btn.disabled = false;
+      btn.textContent = '🤖'
+      btn.disabled = false
     }
   }
 
   observeEntries() {
-    const entriesContainer = document.querySelector('.entries');
-    if (!entriesContainer) return;
+    const entriesContainer = document.querySelector('.entries')
+    if (!entriesContainer) return
 
     const observer = new MutationObserver((mutations) => {
-      let shouldReapply = false;
-      let newEntries = [];
+      let shouldReapply = false
+      let newEntries = []
 
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1 && node.matches('.entry-summary')) {
-            shouldReapply = true;
-            newEntries.push(node);
+            shouldReapply = true
+            newEntries.push(node)
           } else if (node.nodeType === 1 && node.querySelector('.entry-summary')) {
-            shouldReapply = true;
-            newEntries.push(...node.querySelectorAll('.entry-summary'));
+            shouldReapply = true
+            newEntries.push(...node.querySelectorAll('.entry-summary'))
           }
-        });
-      });
+        })
+      })
 
       if (shouldReapply) {
         // Debounce to avoid excessive reapplication
-        clearTimeout(this.applyFiltersTimeout);
+        clearTimeout(this.applyFiltersTimeout)
         this.applyFiltersTimeout = setTimeout(() => {
-          this.applyFilters();
+          this.applyFilters()
 
           // Auto-classify new entries in the background if enabled
           if (this.settings.autoClassify !== false && newEntries.length > 0) {
-            newEntries.forEach(entryEl => {
-              const entryId = entryEl.dataset.entryId;
+            newEntries.forEach((entryEl) => {
+              const entryId = entryEl.dataset.entryId
               if (entryId && !this.entryTags[entryId]) {
-                this.queueEntryForClassification(entryId);
+                this.queueEntryForClassification(entryId)
               }
-            });
+            })
           }
 
           // Check for duplicates when new entries appear (only on Unread page and if enabled)
-          if (newEntries.length > 0 && this.isUnreadPage() && this.settings.duplicateDetection !== 'none') {
-            this.detectDuplicates();
+          if (
+            newEntries.length > 0 &&
+            this.isUnreadPage() &&
+            this.settings.duplicateDetection !== 'none'
+          ) {
+            this.detectDuplicates()
           }
-        }, 100);
+        }, 100)
       }
-    });
+    })
 
     observer.observe(entriesContainer, {
       childList: true,
-      subtree: true
-    });
+      subtree: true,
+    })
   }
 
   listenForStorageChanges() {
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
-      if (areaName !== 'local') return;
+      if (areaName !== 'local') return
 
-      let shouldUpdate = false;
+      let shouldUpdate = false
 
       if (changes.entryTags) {
-        this.entryTags = changes.entryTags.newValue || {};
-        shouldUpdate = true;
+        this.entryTags = changes.entryTags.newValue || {}
+        shouldUpdate = true
       }
 
       if (changes.activeFilters) {
-        this.activeFilters = changes.activeFilters.newValue || { includeTags: [], excludeTags: [] };
-        shouldUpdate = true;
+        this.activeFilters = changes.activeFilters.newValue || { includeTags: [], excludeTags: [] }
+        shouldUpdate = true
       }
 
       if (changes.settings) {
-        const oldSettings = this.settings;
-        this.settings = changes.settings.newValue || {};
+        const oldSettings = this.settings
+        this.settings = changes.settings.newValue || {}
 
         // If autoClassify was just enabled, classify visible entries
         if (!oldSettings.autoClassify && this.settings.autoClassify) {
-          console.log('[Feedbin Power Tools] Auto-classification enabled, classifying visible entries...');
-          this.queueVisibleEntriesForClassification();
+          console.log(
+            '[Feedbin Power Tools] Auto-classification enabled, classifying visible entries...'
+          )
+          this.queueVisibleEntriesForClassification()
         }
       }
 
       if (shouldUpdate) {
-        await this.renderFilterPills();
-        this.updateToggleButton();
-        this.applyFilters();
+        await this.renderFilterPills()
+        this.updateToggleButton()
+        this.applyFilters()
       }
-    });
+    })
   }
 
   // ===== Helper Methods =====
 
   isUnreadPage() {
     // Check if the "Unread" collection is selected in the sidebar
-    const unreadItem = document.querySelector('[data-feed-id="collection_unread"]');
-    return unreadItem && unreadItem.classList.contains('selected');
+    const unreadItem = document.querySelector('[data-feed-id="collection_unread"]')
+    return unreadItem && unreadItem.classList.contains('selected')
   }
 
   // ===== Duplicate Detection =====
@@ -582,46 +597,48 @@ class FeedbinPowerTools {
         action: 'fetchFeedData',
         payload: {
           url: `https://api.feedbin.com/v2/entries/${entryId}.json`,
-          credentials
-        }
-      });
+          credentials,
+        },
+      })
 
       if (response.success && response.data) {
         // Return content length (could be HTML or text)
-        return response.data.content || response.data.summary || '';
+        return response.data.content || response.data.summary || ''
       }
-      return '';
+      return ''
     } catch (error) {
-      console.error(`[Duplicates] Error fetching entry ${entryId}:`, error);
-      return '';
+      console.error(`[Duplicates] Error fetching entry ${entryId}:`, error)
+      return ''
     }
   }
 
   async detectDuplicates() {
     // Time window for considering entries as duplicates (in hours)
-    const DUPLICATE_TIME_WINDOW_HOURS = this.settings.duplicateTimeWindowHours || 1;
+    const DUPLICATE_TIME_WINDOW_HOURS = this.settings.duplicateTimeWindowHours || 1
 
-    console.log(`[Duplicates] 🔍 Checking for duplicate entries (within ${DUPLICATE_TIME_WINDOW_HOURS}h)...`);
+    console.log(
+      `[Duplicates] 🔍 Checking for duplicate entries (within ${DUPLICATE_TIME_WINDOW_HOURS}h)...`
+    )
 
-    const entries = document.querySelectorAll('.entry-summary[data-entry-id]');
+    const entries = document.querySelectorAll('.entry-summary[data-entry-id]')
     if (entries.length === 0) {
-      console.log('[Duplicates] No entries found');
-      return;
+      console.log('[Duplicates] No entries found')
+      return
     }
 
     // Group entries by normalized title
-    const entryGroups = new Map();
+    const entryGroups = new Map()
 
-    entries.forEach(entryEl => {
-      const entryId = entryEl.dataset.entryId;
-      const titleEl = entryEl.querySelector('.title');
-      const timeEl = entryEl.querySelector('time');
+    entries.forEach((entryEl) => {
+      const entryId = entryEl.dataset.entryId
+      const titleEl = entryEl.querySelector('.title')
+      const timeEl = entryEl.querySelector('time')
 
-      if (!titleEl || !entryId) return;
+      if (!titleEl || !entryId) return
 
-      const title = titleEl.textContent.trim();
-      const normalizedTitle = title.toLowerCase().replace(/\s+/g, ' ');
-      const publishedTime = timeEl ? new Date(timeEl.getAttribute('datetime')) : null;
+      const title = titleEl.textContent.trim()
+      const normalizedTitle = title.toLowerCase().replace(/\s+/g, ' ')
+      const publishedTime = timeEl ? new Date(timeEl.getAttribute('datetime')) : null
 
       const entryData = {
         id: entryId,
@@ -629,81 +646,87 @@ class FeedbinPowerTools {
         normalizedTitle: normalizedTitle,
         publishedTime: publishedTime,
         bodyLength: null, // Will fetch from API
-        element: entryEl
-      };
+        element: entryEl,
+      }
 
       if (!entryGroups.has(normalizedTitle)) {
-        entryGroups.set(normalizedTitle, []);
+        entryGroups.set(normalizedTitle, [])
       }
-      entryGroups.get(normalizedTitle).push(entryData);
-    });
+      entryGroups.get(normalizedTitle).push(entryData)
+    })
 
     // Find duplicates (same title, within time window)
-    let duplicateCount = 0;
-    const credentials = await Storage.getCredentials();
+    let duplicateCount = 0
+    const credentials = await Storage.getCredentials()
 
     for (const [normalizedTitle, group] of entryGroups.entries()) {
-      if (group.length < 2) continue; // No duplicates
+      if (group.length < 2) continue // No duplicates
 
       // Sort by publication time
       group.sort((a, b) => {
-        if (!a.publishedTime || !b.publishedTime) return 0;
-        return a.publishedTime - b.publishedTime;
-      });
+        if (!a.publishedTime || !b.publishedTime) return 0
+        return a.publishedTime - b.publishedTime
+      })
 
       // Check each pair for time proximity
       for (let i = 0; i < group.length; i++) {
         for (let j = i + 1; j < group.length; j++) {
-          const entry1 = group[i];
-          const entry2 = group[j];
+          const entry1 = group[i]
+          const entry2 = group[j]
 
           // Check if within time window
           if (entry1.publishedTime && entry2.publishedTime) {
-            const timeDiff = Math.abs(entry2.publishedTime - entry1.publishedTime);
-            const timeWindowMs = DUPLICATE_TIME_WINDOW_HOURS * 60 * 60 * 1000;
+            const timeDiff = Math.abs(entry2.publishedTime - entry1.publishedTime)
+            const timeWindowMs = DUPLICATE_TIME_WINDOW_HOURS * 60 * 60 * 1000
 
             if (timeDiff <= timeWindowMs) {
               // Found potential duplicate! Fetch full content to compare body lengths
-              console.log(`[Duplicates] 📰 Found potential duplicate pair, fetching full content...`);
+              console.log(
+                `[Duplicates] 📰 Found potential duplicate pair, fetching full content...`
+              )
 
               // Fetch full content for both entries
               try {
                 const [content1, content2] = await Promise.all([
                   this.fetchEntryContent(entry1.id, credentials),
-                  this.fetchEntryContent(entry2.id, credentials)
-                ]);
+                  this.fetchEntryContent(entry2.id, credentials),
+                ])
 
-                entry1.bodyLength = content1 ? content1.length : 0;
-                entry2.bodyLength = content2 ? content2.length : 0;
+                entry1.bodyLength = content1 ? content1.length : 0
+                entry2.bodyLength = content2 ? content2.length : 0
 
-                duplicateCount++;
+                duplicateCount++
 
                 // Determine which to archive (shorter body = less helpful)
-                let toArchive, toKeep;
+                let toArchive, toKeep
                 if (entry1.bodyLength < entry2.bodyLength) {
-                  toArchive = entry1;
-                  toKeep = entry2;
+                  toArchive = entry1
+                  toKeep = entry2
                 } else if (entry2.bodyLength < entry1.bodyLength) {
-                  toArchive = entry2;
-                  toKeep = entry1;
+                  toArchive = entry2
+                  toKeep = entry1
                 } else {
                   // Same body length, use publication time (earlier = less helpful)
-                  toArchive = entry1;
-                  toKeep = entry2;
+                  toArchive = entry1
+                  toKeep = entry2
                 }
 
-                const timeDiffMinutes = Math.round(timeDiff / (60 * 1000));
-                console.log(`[Duplicates] 📰 Duplicate confirmed:`);
-                console.log(`  [DRY-RUN] Would archive entry ${toArchive.id}: "${toArchive.title}"`);
-                console.log(`    Body length: ${toArchive.bodyLength.toLocaleString()} chars`);
-                console.log(`    Published: ${toArchive.publishedTime?.toLocaleString() || 'unknown'}`);
-                console.log(`  Would keep entry ${toKeep.id}: "${toKeep.title}"`);
-                console.log(`    Body length: ${toKeep.bodyLength.toLocaleString()} chars`);
-                console.log(`    Published: ${toKeep.publishedTime?.toLocaleString() || 'unknown'}`);
-                console.log(`  Time difference: ${timeDiffMinutes} minutes`);
-                console.log(`  Reason: ${toArchive.bodyLength < toKeep.bodyLength ? 'shorter body' : 'same length, published earlier'}`);
+                const timeDiffMinutes = Math.round(timeDiff / (60 * 1000))
+                console.log(`[Duplicates] 📰 Duplicate confirmed:`)
+                console.log(`  [DRY-RUN] Would archive entry ${toArchive.id}: "${toArchive.title}"`)
+                console.log(`    Body length: ${toArchive.bodyLength.toLocaleString()} chars`)
+                console.log(
+                  `    Published: ${toArchive.publishedTime?.toLocaleString() || 'unknown'}`
+                )
+                console.log(`  Would keep entry ${toKeep.id}: "${toKeep.title}"`)
+                console.log(`    Body length: ${toKeep.bodyLength.toLocaleString()} chars`)
+                console.log(`    Published: ${toKeep.publishedTime?.toLocaleString() || 'unknown'}`)
+                console.log(`  Time difference: ${timeDiffMinutes} minutes`)
+                console.log(
+                  `  Reason: ${toArchive.bodyLength < toKeep.bodyLength ? 'shorter body' : 'same length, published earlier'}`
+                )
               } catch (error) {
-                console.error(`[Duplicates] Error fetching content:`, error);
+                console.error(`[Duplicates] Error fetching content:`, error)
               }
             }
           }
@@ -712,137 +735,143 @@ class FeedbinPowerTools {
     }
 
     if (duplicateCount === 0) {
-      console.log('[Duplicates] ✓ No duplicates found');
+      console.log('[Duplicates] ✓ No duplicates found')
     } else {
-      console.log(`[Duplicates] 📊 Found ${duplicateCount} duplicate pair(s) - see logs above for details`);
+      console.log(
+        `[Duplicates] 📊 Found ${duplicateCount} duplicate pair(s) - see logs above for details`
+      )
     }
   }
 
   // ===== Classification =====
 
   async queueVisibleEntriesForClassification() {
-    const entries = document.querySelectorAll('.entry-summary[data-entry-id]');
-    const entriesToClassify = [];
+    const entries = document.querySelectorAll('.entry-summary[data-entry-id]')
+    const entriesToClassify = []
 
-    entries.forEach(entryEl => {
-      const entryId = entryEl.dataset.entryId;
+    entries.forEach((entryEl) => {
+      const entryId = entryEl.dataset.entryId
       if (entryId && !this.entryTags[entryId]) {
-        entriesToClassify.push(entryId);
+        entriesToClassify.push(entryId)
       }
-    });
+    })
 
     if (entriesToClassify.length === 0) {
-      console.log('[Feedbin Power Tools] No entries to classify');
-      return;
+      console.log('[Feedbin Power Tools] No entries to classify')
+      return
     }
 
-    console.log(`[Feedbin Power Tools] Queuing ${entriesToClassify.length} entries for classification`);
+    console.log(
+      `[Feedbin Power Tools] Queuing ${entriesToClassify.length} entries for classification`
+    )
 
     // Add to queue
-    this.classificationQueue.push(...entriesToClassify);
+    this.classificationQueue.push(...entriesToClassify)
 
     // Start processing (it will update the status with the full queue length)
-    this.processClassificationQueue();
+    this.processClassificationQueue()
   }
 
   queueEntryForClassification(entryId) {
     if (!this.classificationQueue.includes(entryId)) {
-      this.classificationQueue.push(entryId);
-      this.processClassificationQueue();
+      this.classificationQueue.push(entryId)
+      this.processClassificationQueue()
     }
   }
 
   async processClassificationQueue() {
     if (this.isClassifying || this.classificationQueue.length === 0) {
-      return;
+      return
     }
 
-    this.isClassifying = true;
-    const CONCURRENT_LIMIT = 5; // Process 5 entries at a time
+    this.isClassifying = true
+    const CONCURRENT_LIMIT = 5 // Process 5 entries at a time
 
-    console.log(`[Feedbin Power Tools] Processing ${this.classificationQueue.length} entries (${CONCURRENT_LIMIT} concurrent)`);
+    console.log(
+      `[Feedbin Power Tools] Processing ${this.classificationQueue.length} entries (${CONCURRENT_LIMIT} concurrent)`
+    )
 
     // Show initial status with full queue length
-    this.showClassificationStatus(`Classifying ${this.classificationQueue.length} entries...`);
+    this.showClassificationStatus(`Classifying ${this.classificationQueue.length} entries...`)
 
     while (this.classificationQueue.length > 0) {
       // Take up to CONCURRENT_LIMIT entries from the queue
-      const batch = this.classificationQueue.splice(0, CONCURRENT_LIMIT);
+      const batch = this.classificationQueue.splice(0, CONCURRENT_LIMIT)
 
       // Update status with remaining count
-      const remaining = this.classificationQueue.length + batch.length;
-      this.showClassificationStatus(`Classifying ${remaining} entries...`);
+      const remaining = this.classificationQueue.length + batch.length
+      this.showClassificationStatus(`Classifying ${remaining} entries...`)
 
       // Classify all entries in this batch concurrently
-      const promises = batch.map(entryId =>
-        this.classifyEntry(entryId).catch(error => {
-          console.error(`[Feedbin Power Tools] Failed to classify entry ${entryId}:`, error);
+      const promises = batch.map((entryId) =>
+        this.classifyEntry(entryId).catch((error) => {
+          console.error(`[Feedbin Power Tools] Failed to classify entry ${entryId}:`, error)
           // Continue with other entries even if one fails
         })
-      );
+      )
 
       // Wait for this batch to complete before starting the next batch
-      await Promise.all(promises);
+      await Promise.all(promises)
 
       // Small delay between batches to avoid overwhelming the system
       if (this.classificationQueue.length > 0) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100))
       }
     }
 
-    this.isClassifying = false;
-    this.hideClassificationStatus();
+    this.isClassifying = false
+    this.hideClassificationStatus()
 
-    console.log('[Feedbin Power Tools] Finished classifying all entries');
+    console.log('[Feedbin Power Tools] Finished classifying all entries')
 
     // Re-apply filters and update UI
-    this.applyFilters();
-    await this.renderFilterPills();
+    this.applyFilters()
+    await this.renderFilterPills()
   }
 
   async classifyEntry(entryId) {
     try {
       // Ensure entryId is a string
-      entryId = String(entryId);
+      entryId = String(entryId)
 
       // Get entry element
-      const entryEl = document.querySelector(`.entry-summary[data-entry-id="${entryId}"]`);
+      const entryEl = document.querySelector(`.entry-summary[data-entry-id="${entryId}"]`)
       if (!entryEl) {
-        console.warn(`[Feedbin Power Tools] Entry element not found: ${entryId}`);
-        return;
+        console.warn(`[Feedbin Power Tools] Entry element not found: ${entryId}`)
+        return
       }
 
       // Extract basic entry data from DOM
-      const titleEl = entryEl.querySelector('.title');
-      const summaryEl = entryEl.querySelector('.summary');
-      const feedTitleEl = entryEl.querySelector('.feed-title');
+      const titleEl = entryEl.querySelector('.title')
+      const summaryEl = entryEl.querySelector('.summary')
+      const feedTitleEl = entryEl.querySelector('.feed-title')
 
       const basicEntryData = {
         id: entryId,
         title: titleEl ? titleEl.textContent.trim() : '',
         summary: summaryEl ? summaryEl.textContent.trim() : '',
-        feed_title: feedTitleEl ? feedTitleEl.textContent.trim() : ''
-      };
-
-      if (!basicEntryData.title) {
-        console.warn(`[Feedbin Power Tools] No title found for entry: ${entryId}`);
-        return;
+        feed_title: feedTitleEl ? feedTitleEl.textContent.trim() : '',
       }
 
-      console.log(`[Feedbin Power Tools] Fetching full content for: ${basicEntryData.title}`);
+      if (!basicEntryData.title) {
+        console.warn(`[Feedbin Power Tools] No title found for entry: ${entryId}`)
+        return
+      }
+
+      console.log(`[Feedbin Power Tools] Fetching full content for: ${basicEntryData.title}`)
 
       // Fetch full entry content from Feedbin API
-      const credentials = await Storage.getCredentials();
+      const credentials = await Storage.getCredentials()
       const fullEntryResponse = await chrome.runtime.sendMessage({
         action: 'fetchFeedData',
         payload: {
           url: `https://api.feedbin.com/v2/entries/${entryId}.json`,
-          credentials
-        }
-      });
+          credentials,
+        },
+      })
 
-      let entryData = basicEntryData;
-      let feedId = null;
+      let entryData = basicEntryData
+      let feedId = null
       if (fullEntryResponse.success && fullEntryResponse.data) {
         // Merge full entry data (including content)
         entryData = {
@@ -851,29 +880,31 @@ class FeedbinPowerTools {
           summary: fullEntryResponse.data.summary || basicEntryData.summary,
           content: fullEntryResponse.data.content || '', // Full article HTML/text
           feed_title: basicEntryData.feed_title,
-          author: fullEntryResponse.data.author || ''
-        };
-        feedId = fullEntryResponse.data.feed_id; // Get feed ID for feed tag lookup
-        console.log(`[Feedbin Power Tools] Got full content: ${entryData.content ? entryData.content.length : 0} chars`);
+          author: fullEntryResponse.data.author || '',
+        }
+        feedId = fullEntryResponse.data.feed_id // Get feed ID for feed tag lookup
+        console.log(
+          `[Feedbin Power Tools] Got full content: ${entryData.content ? entryData.content.length : 0} chars`
+        )
       } else {
-        console.warn(`[Feedbin Power Tools] Could not fetch full entry, using summary only`);
+        console.warn(`[Feedbin Power Tools] Could not fetch full entry, using summary only`)
       }
 
       // Get existing tags
-      const allTags = await Storage.getAllTags();
+      const allTags = await Storage.getAllTags()
 
       // Get feed tags for this entry's feed (to provide context to LLM)
-      let feedTags = [];
+      let feedTags = []
       if (feedId) {
-        const feedTagData = await Storage.getFeedTag(feedId);
+        const feedTagData = await Storage.getFeedTag(feedId)
         if (feedTagData && feedTagData.tags) {
-          feedTags = feedTagData.tags;
-          console.log(`[Feedbin Power Tools] Feed tags for context: ${feedTags.join(', ')}`);
+          feedTags = feedTagData.tags
+          console.log(`[Feedbin Power Tools] Feed tags for context: ${feedTags.join(', ')}`)
         }
       }
 
       // Classify using background script (to avoid CORS issues)
-      console.log(`[Feedbin Power Tools] Classifying: ${entryData.title}`);
+      console.log(`[Feedbin Power Tools] Classifying: ${entryData.title}`)
 
       const response = await chrome.runtime.sendMessage({
         action: 'classifyEntry',
@@ -881,124 +912,128 @@ class FeedbinPowerTools {
           entryData,
           existingTags: allTags,
           settings: this.settings,
-          feedTags: feedTags
-        }
-      });
+          feedTags: feedTags,
+        },
+      })
 
       if (!response.success) {
-        throw new Error(response.error);
+        throw new Error(response.error)
       }
 
-      const result = response.result;
+      const result = response.result
 
       // IMPORTANT: Validate tags against allowed list
       // LLMs sometimes ignore instructions and return invalid tags
-      const validTags = result.tags.filter(tag => allTags.includes(tag));
-      const invalidTags = result.tags.filter(tag => !allTags.includes(tag));
+      const validTags = result.tags.filter((tag) => allTags.includes(tag))
+      const invalidTags = result.tags.filter((tag) => !allTags.includes(tag))
 
       if (invalidTags.length > 0) {
-        console.warn(`[Feedbin Power Tools] ⚠️ LLM returned invalid tags (filtered out): ${invalidTags.join(', ')}`);
-        console.warn(`[Feedbin Power Tools] Valid tags in system: ${allTags.join(', ')}`);
+        console.warn(
+          `[Feedbin Power Tools] ⚠️ LLM returned invalid tags (filtered out): ${invalidTags.join(', ')}`
+        )
+        console.warn(`[Feedbin Power Tools] Valid tags in system: ${allTags.join(', ')}`)
       }
 
       if (validTags.length === 0) {
-        console.warn(`[Feedbin Power Tools] No valid tags returned for: ${entryData.title}`);
-        return; // Don't save if no valid tags
+        console.warn(`[Feedbin Power Tools] No valid tags returned for: ${entryData.title}`)
+        return // Don't save if no valid tags
       }
 
       // Update result with only valid tags
-      result.tags = validTags;
+      result.tags = validTags
 
       // Also filter tagReasons to only include valid tags
       if (result.tagReasons) {
-        const validTagReasons = {};
-        validTags.forEach(tag => {
+        const validTagReasons = {}
+        validTags.forEach((tag) => {
           if (result.tagReasons[tag]) {
-            validTagReasons[tag] = result.tagReasons[tag];
+            validTagReasons[tag] = result.tagReasons[tag]
           }
-        });
-        result.tagReasons = validTagReasons;
+        })
+        result.tagReasons = validTagReasons
       }
 
       if (result.tags && result.tags.length > 0) {
         // Save tags with individual reasons
-        await Storage.setEntryTags(entryId, result.tags, result.tagReasons || {});
+        await Storage.setEntryTags(entryId, result.tags, result.tagReasons || {})
         this.entryTags[entryId] = {
           tags: result.tags,
           tagReasons: result.tagReasons || {},
-          updatedAt: Date.now()
-        };
+          updatedAt: Date.now(),
+        }
 
-        console.log(`[Feedbin Power Tools] Tagged "${entryData.title}" with: ${result.tags.join(', ')}`);
+        console.log(
+          `[Feedbin Power Tools] Tagged "${entryData.title}" with: ${result.tags.join(', ')}`
+        )
         if (result.tagReasons) {
-          result.tags.forEach(tag => {
+          result.tags.forEach((tag) => {
             if (result.tagReasons[tag]) {
-              console.log(`[Feedbin Power Tools]   ${tag}: ${result.tagReasons[tag]}`);
+              console.log(`[Feedbin Power Tools]   ${tag}: ${result.tagReasons[tag]}`)
             }
-          });
+          })
         }
 
         // Update UI for this entry
-        this.addTagIndicator(entryEl, entryId);
+        this.addTagIndicator(entryEl, entryId)
       }
     } catch (error) {
-      console.error(`[Feedbin Power Tools] Classification error for entry ${entryId}:`, error);
+      console.error(`[Feedbin Power Tools] Classification error for entry ${entryId}:`, error)
     }
   }
 
   showClassificationStatus(message) {
-    let statusEl = document.getElementById('classification-status');
+    let statusEl = document.getElementById('classification-status')
 
     if (!statusEl) {
-      statusEl = document.createElement('div');
-      statusEl.id = 'classification-status';
-      statusEl.className = 'classification-status';
+      statusEl = document.createElement('div')
+      statusEl.id = 'classification-status'
+      statusEl.className = 'classification-status'
 
-      const toolbar = document.getElementById('feedbin-power-tools-toolbar');
+      const toolbar = document.getElementById('feedbin-power-tools-toolbar')
       if (toolbar) {
-        toolbar.appendChild(statusEl);
+        toolbar.appendChild(statusEl)
       }
     }
 
-    statusEl.textContent = message;
-    statusEl.style.display = 'block';
+    statusEl.textContent = message
+    statusEl.style.display = 'block'
   }
 
   hideClassificationStatus() {
-    const statusEl = document.getElementById('classification-status');
+    const statusEl = document.getElementById('classification-status')
     if (statusEl) {
-      statusEl.style.display = 'none';
+      statusEl.style.display = 'none'
     }
   }
 }
 
 // Initialize with better timing
-console.log('[Feedbin Power Tools] Script loaded at', new Date().toISOString());
-console.log('[Feedbin Power Tools] Document ready state:', document.readyState);
+console.log('[Feedbin Power Tools] Script loaded at', new Date().toISOString())
+console.log('[Feedbin Power Tools] Document ready state:', document.readyState)
 
-const powerTools = new FeedbinPowerTools();
+const powerTools = new FeedbinPowerTools()
 
 // Function to try initialization
 function tryInit() {
-  console.log('[Feedbin Power Tools] Attempting initialization...');
-  powerTools.init().catch(err => {
-    console.error('[Feedbin Power Tools] Init failed:', err);
-  });
+  console.log('[Feedbin Power Tools] Attempting initialization...')
+  powerTools.init().catch((err) => {
+    console.error('[Feedbin Power Tools] Init failed:', err)
+  })
 }
 
 // Try immediately if DOM is ready
 if (document.readyState === 'loading') {
-  console.log('[Feedbin Power Tools] Waiting for DOMContentLoaded...');
-  document.addEventListener('DOMContentLoaded', tryInit);
+  console.log('[Feedbin Power Tools] Waiting for DOMContentLoaded...')
+  document.addEventListener('DOMContentLoaded', tryInit)
 } else {
-  console.log('[Feedbin Power Tools] DOM already loaded, initializing now');
-  tryInit();
+  console.log('[Feedbin Power Tools] DOM already loaded, initializing now')
+  tryInit()
 }
 
 // Also try after a short delay as a fallback
 setTimeout(() => {
   if (!powerTools.initialized) {
-    console.log('[Feedbin Power Tools] Fallback init after 1 second');
-    tryInit();
+    console.log('[Feedbin Power Tools] Fallback init after 1 second')
+    tryInit()
   }
-}, 1000);
+}, 1000)

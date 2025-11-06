@@ -1,0 +1,30 @@
+{
+  "name": "feedbin-extension",
+  "version": "1.0.0",
+  "description": "> **Smart filtering for Feedbin** - Automatically tag and filter individual RSS entries using AI, not just entire feeds.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write \"src/**/*.{js,html,css}\"",
+    "format:check": "prettier --check \"src/**/*.{js,html,css}\"",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint --fix src/**/*.js",
+    "prepare": "lefthook install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "lefthook": "^2.0.2",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "tom-select": "^2.4.3"
+  }
+}
