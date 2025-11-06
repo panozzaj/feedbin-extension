@@ -17,6 +17,7 @@ class PopupUI {
     // Setup UI
     this.setupEventListeners();
     this.updateLLMSettings();
+    this.initializeTomSelect();
     await this.renderAllTags();
     await this.renderStats();
 
@@ -50,7 +51,7 @@ class PopupUI {
     document.getElementById('claude-key').value = this.settings.claudeApiKey || '';
     document.getElementById('openai-key').value = this.settings.openaiApiKey || '';
     document.getElementById('auto-classify').checked = this.settings.autoClassify === true;
-    document.getElementById('duplicate-detection').value = this.settings.duplicateDetection || 'none';
+    // duplicate-detection value will be set by tom-select in initializeTomSelect()
 
     // Show current user if logged in
     if (this.credentials.email) {
@@ -105,14 +106,6 @@ class PopupUI {
       this.showStatus(`Auto-classification ${e.target.checked ? 'enabled' : 'disabled'}`, 'success');
     });
 
-    // Duplicate detection dropdown (save immediately)
-    document.getElementById('duplicate-detection').addEventListener('change', async (e) => {
-      this.settings.duplicateDetection = e.target.value;
-      await Storage.setSettings(this.settings);
-      const labels = { none: 'disabled', log: 'logging only', archive: 'enabled with auto-archive' };
-      this.showStatus(`Duplicate detection: ${labels[e.target.value]}`, 'success');
-    });
-
     // Tag management
     document.getElementById('add-tag-btn').addEventListener('click', () => this.addCustomTag());
     document.getElementById('new-tag-input').addEventListener('keypress', (e) => {
@@ -136,6 +129,44 @@ class PopupUI {
     document.getElementById('local-settings').style.display = provider === 'local' ? 'block' : 'none';
     document.getElementById('claude-settings').style.display = provider === 'claude' ? 'block' : 'none';
     document.getElementById('openai-settings').style.display = provider === 'openai' ? 'block' : 'none';
+  }
+
+  initializeTomSelect() {
+    const select = document.getElementById('duplicate-detection');
+
+    // Build options with help text from data attributes
+    const options = Array.from(select.options).map(opt => ({
+      value: opt.value,
+      text: opt.text,
+      help: opt.dataset.help || ''
+    }));
+
+    this.duplicateSelect = new TomSelect(select, {
+      options: options,
+      labelField: 'text',
+      valueField: 'value',
+      searchField: ['text'],
+      render: {
+        option: (data, escape) => {
+          return `<div>
+            <div style="font-weight: 500;">${escape(data.text)}</div>
+            <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">${escape(data.help)}</div>
+          </div>`;
+        },
+        item: (data, escape) => {
+          return `<div>${escape(data.text)}</div>`;
+        }
+      },
+      onChange: async (value) => {
+        this.settings.duplicateDetection = value;
+        await Storage.setSettings(this.settings);
+        const labels = { none: 'disabled', log: 'logging only', archive: 'enabled with auto-archive' };
+        this.showStatus(`Duplicate detection: ${labels[value]}`, 'success');
+      }
+    });
+
+    // Set initial value
+    this.duplicateSelect.setValue(this.settings.duplicateDetection || 'none', true);
   }
 
   updateLLMSettingsSummary() {

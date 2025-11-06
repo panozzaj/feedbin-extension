@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Feedbin Power Tools</title>
+  <link rel="stylesheet" href="vendor/tom-select.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -94,16 +95,13 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="duplicate-detection">
-            Duplicate Detection
-            <span class="help-icon" title="Finds entries with the same title published within 1 hour. 'None' disables detection. 'Log' shows what would be archived in console. 'Archive' automatically marks duplicates as read (keeps the entry with more content).">ℹ️</span>
-          </label>
+          <label class="form-label" for="duplicate-detection">Duplicate Detection</label>
           <select id="duplicate-detection" class="form-select">
-            <option value="none">None (disabled)</option>
-            <option value="log">Log only (dry-run)</option>
-            <option value="archive">Archive duplicates</option>
+            <option value="none" data-help="Duplicate detection is disabled">None</option>
+            <option value="log" data-help="Logs what would be archived to JavaScript console">Log only</option>
+            <option value="archive" data-help="Automatically marks duplicates as read (keeps entry with longest content)">Archive</option>
           </select>
-          <div class="help-text">Only runs on Unread view. Compares entries with identical titles published within 1 hour.</div>
+          <div class="help-text">Finds entries with identical titles published within 1 hour. Only runs on Unread view.</div>
         </div>
       </div>
 
@@ -136,6 +134,7 @@
     </div>
   </div>
 
+  <script src="vendor/tom-select.js"></script>
   <script src="storage.js"></script>
   <script src="llm.js"></script>
   <script src="popup.js"></script>
