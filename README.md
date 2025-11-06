@@ -1,314 +1,359 @@
-# Feedbin Power Tools
+# ⚡ Feedbin Power Tools
 
-A Chrome extension that enhances Feedbin with powerful **entry-level** filtering and LLM-powered classification.
+> **Smart filtering for Feedbin** - Automatically tag and filter individual RSS entries using AI, not just entire feeds.
 
-## 🎯 Key Features
+[![Chrome Extension](https://img.shields.io/badge/chrome-extension-blue.svg)](https://www.google.com/chrome/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- **🏷️ Entry-Level Tagging**: Classify individual posts/articles (not just whole feeds)
-- **🤖 LLM-Powered Auto-Tagging**: Use AI to categorize entries based on content
-- **⚡ Smart Filtering**: Show/hide entries in Unread based on tags
-- **🔄 Multiple LLM Providers**: Support for local (Ollama) and cloud (Claude, OpenAI) models
-- **💾 Persistent Tags**: Once classified, entries stay classified (no reclassification needed)
-- **🚀 Works with Production**: No modifications to Feedbin needed
+A Chrome extension that supercharges your [Feedbin](https://feedbin.com) RSS reader with **AI-powered entry classification** and **smart filtering**. Instead of tagging entire feeds, tag individual articles—so you can see only tech posts, hide politics, or create custom reading workflows.
 
-## Why Entry-Level?
+---
 
-**Problem**: A blog might post about **both** tech and sports. If you tag the entire feed as "tech", you'll see sports posts when filtering for tech.
+## 📸 Screenshot
 
-**Solution**: Tag **individual entries**. Now you can:
-- See only tech posts from any feed
-- Hide all politics posts, regardless of source
-- Mix and match tags for perfect filtering
+![Feedbin Power Tools Interface](docs/screenshot.png)
+*Filter toolbar showing "Show only" and "Hide" sections with tag pills. Click any tag to instantly filter your feed.*
 
-## Quick Start
+> **Note:** To add your own screenshot, save it as `docs/screenshot.png`
 
-### 1. Install Ollama (Local LLM - Recommended)
+---
+
+## 🎯 Why Use This?
+
+### The Problem with Feed-Level Filtering
+
+Most RSS readers let you organize feeds into folders. But what if:
+- A tech blog occasionally posts about politics?
+- Your favorite newsletter covers both AI and sports?
+- You want to see all "mathematics" posts regardless of which feed they came from?
+
+**Feed-level organization breaks down** when blogs cover multiple topics.
+
+### The Solution: Entry-Level Classification
+
+Feedbin Power Tools uses AI to **tag individual articles**, not entire feeds:
+
+✅ **See only what you want** - Filter for "tech" and get tech posts from *any* feed
+✅ **Hide distractions** - Block "politics" entries without unsubscribing from great blogs
+✅ **Mix and match** - Show "ai" + "health", hide "sports"
+✅ **Set it and forget it** - Auto-classification runs in the background
+
+---
+
+## ✨ Key Features
+
+- 🏷️ **Entry-Level Tagging** - Classify individual articles, not entire feeds
+- 🤖 **AI-Powered Classification** - Automatic tagging using LLMs (local or cloud)
+- ⚡ **One-Click Filtering** - Show/hide entries instantly by clicking tags
+- 🔄 **Auto-Classify** - New entries tagged automatically as you browse
+- 💾 **Persistent Tags** - Once tagged, stays tagged (no reclassification needed)
+- 🔒 **Privacy First** - Use local AI (Ollama) to keep everything on your machine
+- 🚀 **Zero Setup Required** - Works with production Feedbin, no server changes needed
+
+## 🚀 Quick Start
+
+### Step 1: Install Local AI (Recommended)
+
+Install [Ollama](https://ollama.ai) for free, unlimited AI classification:
 
 ```bash
+# macOS
 brew install ollama
 ollama serve
-ollama pull llama3.2
+ollama pull gemma3:4b  # Best balance of speed and accuracy
 ```
 
-### 2. Load Extension
+*Alternatively, use Claude or OpenAI with API keys (costs ~$0.001-0.005 per entry).*
 
-1. Chrome → `chrome://extensions/`
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select this directory
+### Step 2: Install the Extension
 
-### 3. Configure
+1. Clone or download this repository
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable **"Developer mode"** (top-right toggle)
+4. Click **"Load unpacked"**
+5. Select the `feedbin-extension` directory
 
-1. Click extension icon (⚡)
-2. Enter Feedbin credentials
-3. Verify "Local (Ollama)" is selected
-4. Click "Save Settings"
+### Step 3: Configure
 
-### 4. Use It!
+1. Click the ⚡ extension icon in your Chrome toolbar
+2. **Enter your Feedbin credentials** (email + password)
+3. **Choose LLM provider:**
+   - Local (Ollama) - Free, private, unlimited
+   - Claude - Best quality, requires API key
+   - OpenAI - Good quality, requires API key
+4. Click **"Save Settings"**
 
-1. Go to feedbin.com/unread
-2. Click "🤖 Classify Visible" in the Power Tools toolbar
-3. Wait for classification (~1-2 sec per entry)
-4. Click tags to filter!
+### Step 4: Start Using!
 
-## How It Works
+1. Go to [feedbin.com/unread](https://feedbin.com/unread)
+2. Wait a moment for the extension to load
+3. The **Power Tools toolbar** appears in the left sidebar
+4. Enable **"Automatically classify entries"** in settings (default: on)
+5. Watch as entries get tagged automatically 🎉
+6. Click tags to filter your feed!
 
-### Classification
+**Pro tip:** You can also manually classify by clicking the **"🤖 Classify"** button.
 
-```
-Entry: "Anthropic Releases Claude 4"
-Feed: TechCrunch
-Summary: "New AI model with improved reasoning..."
+---
 
-        ↓ LLM analyzes
-
-Tags: tech, ai
-```
-
-### Filtering
-
-```
-User clicks "tech" under "Show only"
-  ↓
-Extension checks each entry's tags
-  ↓
-Shows entries with "tech" tag
-Hides everything else
-  ↓
-Result: Tech-only feed view
-```
-
-## Usage Workflows
+## 💡 Usage Examples
 
 ### Daily Reading Routine
 
-1. Open Unread
-2. Click "🤖 Classify Visible"
-3. Click "tech" to see only tech
+```
+1. Open feedbin.com/unread
+2. Auto-classification happens in background
+3. Click "tech" under "Show only" → See only tech articles
 4. Read tech articles
-5. Click "business" to see only business
-6. Read business articles
-7. Clear filters, mark all as read
+5. Click "health" → Switch to health articles
+6. Click "Clear All" → See everything again
+```
 
 ### Hide Distractions
 
-1. Click "🤖 Classify Visible"
-2. Click "politics" under "Hide"
-3. Result: Politics-free reading experience
+```
+Tired of seeing politics posts?
+1. Click "politics" under "Hide"
+2. Result: Politics-free feed
+3. Keep reading without unsubscribing from great blogs
+```
 
-### Mixed Filtering
+### Advanced Filtering
 
-- **Show only**: tech, science
-- **Hide**: sports
-- **Result**: Tech and science, but no sports
+```
+Want tech and AI, but no sports?
+- Show only: ✅ tech, ✅ ai
+- Hide: ❌ sports
+Result: Relevant content only
+```
 
-## Features
+### Custom Tags
 
-### On Feedbin Pages
+```
+1. Open extension settings (click ⚡ icon)
+2. Add custom tags: "research", "tutorials", "news"
+3. AI will use your tags when classifying
+4. Get personalized filtering
+```
 
-- **Toolbar**: Injected at top of Unread/Starred/etc.
-- **Classify Button**: Classifies visible entries
-- **Filter Pills**: Click to show/hide by tag
-- **Tag Indicators**: Shows tags next to entry titles
-- **Status Messages**: Shows progress during classification
+---
 
-### In Popup
+## 🔧 How It Works
 
-- **Settings**: Configure LLM provider and API keys
-- **Feed Tags** (Optional): Bootstrap tags by classifying entire feeds
-- **Export/Import**: Backup your tag data
-- **Connection Test**: Verify LLM is working
+### Behind the Scenes
 
-## Settings
+When you load your Feedbin feed:
 
-### LLM Providers
+```
+1. Extension reads entry data (title, summary, feed name)
+   ↓
+2. Sends to AI: "Classify this entry with these tags: [ai, tech, health, politics, ...]"
+   ↓
+3. AI analyzes content and returns tags: ["tech", "ai"]
+   ↓
+4. Tags saved to Chrome storage + displayed in UI
+   ↓
+5. Click filters → Extension shows/hides entries via CSS
+```
 
-**Local (Ollama)**:
-- ✅ Free, unlimited
-- ✅ 100% private (nothing leaves your computer)
-- ✅ Works offline
-- ⚠️  Requires local installation
-- ⚠️  Slower on low-end hardware
+### Example Classification
 
-**Claude (Anthropic)**:
-- ✅ Excellent quality
-- ✅ Fast
-- ⚠️  Requires API key
-- ⚠️  Costs ~$0.005 per entry
+```
+📰 Entry: "Anthropic Releases Claude 4"
+📡 Feed: TechCrunch
+📝 Summary: "New AI model with improved reasoning..."
 
-**OpenAI**:
-- ✅ Good quality
-- ✅ Fast
-- ⚠️  Requires API key
-- ⚠️  Costs ~$0.001 per entry
+        ↓ AI analyzes ↓
 
-### Auto-Classify
+🏷️ Tags: tech, ai
+```
 
-Enable in settings to automatically classify new entries as they load. Useful for keeping your Unread feed continuously classified.
+Now you can filter for "ai" and see this entry, even if TechCrunch also posts about politics!
 
-## Data Storage
+---
 
-### What's Stored
+## ⚙️ Settings & Configuration
+
+### LLM Provider Options
+
+Choose the AI provider that fits your needs:
+
+| Provider | Cost | Privacy | Speed | Setup |
+|----------|------|---------|-------|-------|
+| **Local (Ollama)** | Free | 100% private | Medium | Install Ollama |
+| **Claude** | ~$0.005/entry | Sent to Anthropic | Fast | API key |
+| **OpenAI** | ~$0.001/entry | Sent to OpenAI | Fast | API key |
+
+**Recommendation:** Start with **Ollama** for privacy and unlimited free usage.
+
+### Auto-Classification
+
+Toggle **"Automatically classify entries in background"** in settings:
+
+- ✅ **Enabled** (default) - New entries tagged automatically as you scroll
+- ❌ **Disabled** - Manual classification only (useful for debugging)
+
+### Custom Tags
+
+Add your own tags in the extension popup:
+
+```
+Default tags: ai, tech, health, politics, sports, etc.
+Your tags: research, tutorials, personal, work, etc.
+```
+
+The AI will prefer using existing tags for consistency.
+
+---
+
+## 📋 Features
+
+### In the Feedbin Interface
+
+- 🎨 **Power Tools Toolbar** - Injected into Feedbin's left sidebar
+- 🤖 **Manual Classify Button** - Classify visible entries on demand
+- 🏷️ **Filter Pills** - Click tags to instantly show/hide entries
+- 📌 **Tag Indicators** - See tags on each entry
+- 📊 **Status Messages** - Real-time classification progress
+- 🔄 **Auto-Classification** - Background tagging as you browse
+
+### In the Extension Popup
+
+- ⚙️ **Settings Panel** - Configure LLM provider and credentials
+- 🏷️ **Tag Management** - Add custom tags
+- 📊 **Statistics** - See tag usage and classified entry count
+- 🔌 **Connection Test** - Verify AI provider is working
+
+---
+
+## 💾 Data & Privacy
+
+### What's Stored Locally
+
+All data is stored in your browser using Chrome's storage API:
 
 ```javascript
 {
   entryTags: {
-    "12345": { tags: ["tech", "ai"], updatedAt: 1234567890 },
-    "12346": { tags: ["politics"], updatedAt: 1234567890 }
+    "12345": { tags: ["tech", "ai"], tagReasons: {...}, updatedAt: 1234567890 }
   },
-  activeFilters: {
-    includeTags: ["tech"],
-    excludeTags: ["politics"]
-  },
-  settings: { /* LLM config */ },
-  credentials: { /* Feedbin auth */ }
+  activeFilters: { includeTags: ["tech"], excludeTags: ["politics"] },
+  settings: { llmProvider: "local", ... },
+  credentials: { email: "...", password: "..." }
 }
 ```
 
+**Privacy notes:**
+- ✅ Everything stored locally in your browser
+- ✅ Feedbin credentials never leave your machine
+- ✅ With Ollama: Entry content never sent to internet
+- ⚠️ With Claude/OpenAI: Entry titles/summaries sent for classification only
+
 ### Storage Management
 
-- **Unread entries**: Kept forever (avoid reclassification)
-- **Read entries**: Pruned after 30 days
-- **Export**: Backup to JSON anytime
-- **Import**: Restore from backup
+- **Unread entries** - Tags kept forever (no reclassification needed)
+- **Read entries** - Auto-pruned after 30 days to save space
+- **Chrome storage limits** - ~5MB for extension data (thousands of entries)
 
-## Architecture
+---
 
-### Entry-Level Design
+## 🏗️ Technical Details
+
+### Architecture
+
+This is a Chrome extension with three main components:
 
 ```
-1. User browses Unread
-2. Clicks "Classify Visible"
-3. Extension:
-   - Reads entry titles/summaries from DOM
-   - Sends to LLM for classification
-   - Saves tags in Chrome storage
-   - Adds tag indicators to UI
-4. User clicks tag filters
-5. Extension:
-   - Checks each entry's tags
-   - Shows/hides via CSS display property
+📄 content-script.js    → Runs on feedbin.com pages
+                         → Reads entries, applies filters, shows UI
+
+🎨 popup.html/js        → Extension settings popup
+                         → Configure LLM, manage tags
+
+⚙️ background.js        → Service worker
+                         → Proxies API calls to avoid CORS
 ```
 
-### Files
+### Project Structure
 
 ```
 feedbin-extension/
-├── manifest.json           # Extension config
+├── manifest.json          # Extension configuration
 ├── src/
-│   ├── content-script.js  # Runs on feedbin.com
-│   ├── popup.html/js     # Settings UI
-│   ├── background.js     # Service worker
-│   ├── storage.js        # Chrome storage API
-│   ├── llm.js           # LLM integration
-│   └── styles.css       # Custom styles
-└── icons/               # Extension icons
+│   ├── content-script.js  # Main extension logic
+│   ├── popup.html/js/css  # Settings interface
+│   ├── background.js      # API proxy
+│   ├── storage.js         # Storage helpers
+│   ├── llm.js            # AI provider integrations
+│   └── styles.css        # Custom UI styles
+├── icons/                # Extension icons
+└── docs/                 # Documentation & screenshots
 ```
 
-## Privacy
+### Supported Environments
 
-### With Local LLM (Ollama)
+- ✅ Chrome browser (tested on latest version)
+- ✅ Production Feedbin (feedbin.com)
+- ✅ Local Feedbin development (localhost:3000)
+- ❌ Firefox (not yet supported - uses Chrome-specific APIs)
 
-- **100% private**: Nothing leaves your computer
-- Entry data never sent to cloud
-- No tracking, no telemetry
+---
 
-### With Cloud APIs
+## 🐛 Troubleshooting
 
-- Entry titles/summaries sent to Claude/OpenAI
-- Only during classification
-- Credentials stored locally only
-- No other data leaves your browser
+| Issue | Solution |
+|-------|----------|
+| "Cannot connect to Ollama" | Run `ollama serve` in terminal |
+| "Authentication failed" | Verify Feedbin credentials, re-enter in popup |
+| "No entries to classify" | Refresh page, entries may already be tagged |
+| Classification slow | First run downloads model (one-time), or use Claude/OpenAI |
+| Tags not showing | Check browser console for errors, reload extension |
 
-## Troubleshooting
+---
 
-### "Cannot connect to Ollama"
+## ❓ FAQ
 
-```bash
-# Check if running
-curl http://localhost:11434/api/tags
+**Q: Why not just organize feeds into folders?**
+A: Feeds often cover multiple topics. A tech blog might post about politics. Entry-level tagging lets you filter individual articles across all feeds.
 
-# Start if needed
-ollama serve
-```
+**Q: Do I need to reclassify every time I visit Feedbin?**
+A: No! Tags are saved permanently. Once an entry is tagged, it stays tagged.
 
-### "Authentication failed"
+**Q: How much does it cost?**
+A: Ollama (local) is free. Claude costs ~$0.005/entry, OpenAI ~$0.001/entry.
 
-- Verify credentials at feedbin.com
-- Re-enter in extension popup
-- Check browser console for errors
+**Q: Does this modify Feedbin?**
+A: No! Everything runs client-side in your browser. Uses Feedbin's public API only.
 
-### "No entries to classify"
+**Q: Can I use custom tags?**
+A: Yes! Add your own tags in settings. The AI will prefer using your existing tags.
 
-- Make sure you're on a page with entries
-- Check if entries already have tags
-- Try refreshing the page
+---
 
-### Classification too slow
+## 🚧 Limitations & Roadmap
 
-- **Ollama**: First run downloads model (one-time)
-- **Cloud APIs**: May have rate limits
-- **Solution**: Classify in smaller batches
+**Current Limitations:**
+- Chrome only (not Firefox compatible yet)
+- Client-side filtering (entries still load, just hidden via CSS)
+- No cross-device sync (local storage only)
 
-## Development
-
-### Testing Locally
-
-1. Make code changes
-2. Go to `chrome://extensions/`
-3. Click reload icon for extension
-4. Refresh feedbin.com
-5. Test changes
-
-### Adding LLM Providers
-
-See `src/llm.js` - implement:
-- `classifyEntryWith{Provider}()`
-- Add settings UI in `popup.html`
-- Update `testConnection()`
-
-## Limitations
-
-- **Chrome only**: Uses Chrome Extensions API (not Firefox compatible yet)
-- **Feedbin-specific**: Tightly coupled to Feedbin's DOM structure
-- **Client-side filtering**: Hidden entries still load, just CSS hidden
-- **Local storage only**: No cross-device sync (can export/import)
-
-## Roadmap
-
-- [ ] Batch classification API calls (faster processing)
-- [ ] Custom filter rules (regex, keywords, date ranges)
+**Planned Features:**
+- [ ] Duplicate entry detection (same article from multiple feeds)
 - [ ] Keyboard shortcuts for quick filtering
-- [ ] Reading analytics (time spent per category)
 - [ ] Firefox support
-- [ ] Optional cloud sync
+- [ ] Reading time estimates per category
 
-## FAQ
+---
 
-**Q: Why not classify feeds instead of entries?**
-A: Feeds can cover multiple topics. A personal blog might have tech AND politics posts. Entry-level tagging gives you granular control.
+## 🤝 Contributing
 
-**Q: Do I need to reclassify entries every time?**
-A: No! Once classified, tags are saved. Unread entries stay classified forever.
-
-**Q: How much does it cost with cloud APIs?**
-A: Claude: ~$0.005/entry, OpenAI: ~$0.001/entry. Ollama is free.
-
-**Q: Can I use my own tags?**
-A: Yes, add custom tags in popup. LLM will try to reuse existing tags for consistency.
-
-**Q: Does this modify Feedbin's servers?**
-A: No! All filtering is client-side via DOM manipulation. Uses Feedbin's public API only.
-
-## Contributing
-
-Pull requests welcome! Key areas:
-
+Pull requests welcome! Areas of interest:
 - Performance optimizations
-- Additional LLM providers
+- Additional LLM providers (Gemini, Llama, etc.)
 - Firefox compatibility
-- Better UI/UX
-- Bug fixes
+- UI/UX improvements
+
+---
 
 ## License
 
