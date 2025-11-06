@@ -11,10 +11,13 @@ A Chrome extension that supercharges your [Feedbin](https://feedbin.com) RSS rea
 
 ## 📸 Screenshot
 
-![Feedbin Power Tools Interface](docs/screenshot.png)
+![Feedbin Power Tools Sidebar](docs/sidebar.png)
+
 *Filter toolbar showing "Show only" and "Hide" sections with tag pills. Click any tag to instantly filter your feed.*
 
-> **Note:** To add your own screenshot, save it as `docs/screenshot.png`
+![Feedbin Power Settings](docs/settings.png)
+
+*Extension popup for configuring LLM provider, Feedbin credentials, custom tags, and more!.*
 
 ---
 
@@ -22,10 +25,11 @@ A Chrome extension that supercharges your [Feedbin](https://feedbin.com) RSS rea
 
 ### The Problem with Feed-Level Filtering
 
-Most RSS readers let you organize feeds into folders. But what if:
-- A tech blog occasionally posts about politics?
-- Your favorite newsletter covers both AI and sports?
-- You want to see all "mathematics" posts regardless of which feed they came from?
+Most RSS readers let you organize feeds by tags. But what if:
+
+- You're not in the mood for more politics posts today?
+- Your favorite newsletter sometimes rambles about sports?
+- You want to see all "math" posts first regardless of which feed they came from?
 
 **Feed-level organization breaks down** when blogs cover multiple topics.
 
@@ -93,48 +97,6 @@ ollama pull gemma3:4b  # Best balance of speed and accuracy
 6. Click tags to filter your feed!
 
 **Pro tip:** You can also manually classify by clicking the **"🤖 Classify"** button.
-
----
-
-## 💡 Usage Examples
-
-### Daily Reading Routine
-
-```
-1. Open feedbin.com/unread
-2. Auto-classification happens in background
-3. Click "tech" under "Show only" → See only tech articles
-4. Read tech articles
-5. Click "health" → Switch to health articles
-6. Click "Clear All" → See everything again
-```
-
-### Hide Distractions
-
-```
-Tired of seeing politics posts?
-1. Click "politics" under "Hide"
-2. Result: Politics-free feed
-3. Keep reading without unsubscribing from great blogs
-```
-
-### Advanced Filtering
-
-```
-Want tech and AI, but no sports?
-- Show only: ✅ tech, ✅ ai
-- Hide: ❌ sports
-Result: Relevant content only
-```
-
-### Custom Tags
-
-```
-1. Open extension settings (click ⚡ icon)
-2. Add custom tags: "research", "tutorials", "news"
-3. AI will use your tags when classifying
-4. Get personalized filtering
-```
 
 ---
 
@@ -336,12 +298,6 @@ A: Yes! Add your own tags in settings. The AI will prefer using your existing ta
 - Chrome only (not Firefox compatible yet)
 - Client-side filtering (entries still load, just hidden via CSS)
 - No cross-device sync (local storage only)
-
-**Planned Features:**
-- [ ] Duplicate entry detection (same article from multiple feeds)
-- [ ] Keyboard shortcuts for quick filtering
-- [ ] Firefox support
-- [ ] Reading time estimates per category
 
 ---
 
