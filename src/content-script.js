@@ -613,11 +613,18 @@ class FeedbinPowerTools {
   }
 
   async detectDuplicates() {
+    // Check if duplicate detection is enabled
+    const duplicateMode = this.settings.duplicateDetection || 'none'
+    if (duplicateMode === 'none') {
+      return // Skip if disabled
+    }
+
     // Time window for considering entries as duplicates (in hours)
     const DUPLICATE_TIME_WINDOW_HOURS = this.settings.duplicateTimeWindowHours || 1
 
+    const modeLabel = duplicateMode === 'archive' ? '🗄️ ARCHIVE MODE' : '📝 LOG MODE'
     console.log(
-      `[Duplicates] 🔍 Checking for duplicate entries (within ${DUPLICATE_TIME_WINDOW_HOURS}h)...`
+      `[Duplicates] 🔍 ${modeLabel} - Checking for duplicate entries (within ${DUPLICATE_TIME_WINDOW_HOURS}h)...`
     )
 
     const entries = document.querySelectorAll('.entry-summary[data-entry-id]')
@@ -657,6 +664,7 @@ class FeedbinPowerTools {
 
     // Find duplicates (same title, within time window)
     let duplicateCount = 0
+    const entriesToArchive = [] // Collect IDs to archive
     const credentials = await Storage.getCredentials()
 
     for (const [normalizedTitle, group] of entryGroups.entries()) {
@@ -682,7 +690,7 @@ class FeedbinPowerTools {
             if (timeDiff <= timeWindowMs) {
               // Found potential duplicate! Fetch full content to compare body lengths
               console.log(
-                `[Duplicates] 📰 Found potential duplicate pair, fetching full content...`
+                '[Duplicates] 📰 Found potential duplicate pair, fetching full content...'
               )
 
               // Fetch full content for both entries
@@ -712,21 +720,32 @@ class FeedbinPowerTools {
                 }
 
                 const timeDiffMinutes = Math.round(timeDiff / (60 * 1000))
-                console.log(`[Duplicates] 📰 Duplicate confirmed:`)
-                console.log(`  [DRY-RUN] Would archive entry ${toArchive.id}: "${toArchive.title}"`)
+                const reason =
+                  toArchive.bodyLength < toKeep.bodyLength
+                    ? 'shorter body'
+                    : 'same length, published earlier'
+
+                // Log the duplicate
+                console.log('[Duplicates] 📰 Duplicate confirmed:')
+                if (duplicateMode === 'archive') {
+                  console.log(`  ✓ Will archive entry ${toArchive.id}: "${toArchive.title}"`)
+                  entriesToArchive.push(toArchive.id)
+                } else {
+                  console.log(
+                    `  [DRY-RUN] Would archive entry ${toArchive.id}: "${toArchive.title}"`
+                  )
+                }
                 console.log(`    Body length: ${toArchive.bodyLength.toLocaleString()} chars`)
                 console.log(
                   `    Published: ${toArchive.publishedTime?.toLocaleString() || 'unknown'}`
                 )
-                console.log(`  Would keep entry ${toKeep.id}: "${toKeep.title}"`)
+                console.log(`  Will keep entry ${toKeep.id}: "${toKeep.title}"`)
                 console.log(`    Body length: ${toKeep.bodyLength.toLocaleString()} chars`)
                 console.log(`    Published: ${toKeep.publishedTime?.toLocaleString() || 'unknown'}`)
                 console.log(`  Time difference: ${timeDiffMinutes} minutes`)
-                console.log(
-                  `  Reason: ${toArchive.bodyLength < toKeep.bodyLength ? 'shorter body' : 'same length, published earlier'}`
-                )
+                console.log(`  Reason: ${reason}`)
               } catch (error) {
-                console.error(`[Duplicates] Error fetching content:`, error)
+                console.error('[Duplicates] Error fetching content:', error)
               }
             }
           }
@@ -740,7 +759,50 @@ class FeedbinPowerTools {
       console.log(
         `[Duplicates] 📊 Found ${duplicateCount} duplicate pair(s) - see logs above for details`
       )
+
+      // Actually archive entries if in archive mode
+      if (duplicateMode === 'archive' && entriesToArchive.length > 0) {
+        try {
+          console.log(`[Duplicates] 🗄️ Archiving ${entriesToArchive.length} duplicate entries...`)
+          await this.markEntriesAsRead(entriesToArchive, credentials)
+          console.log(`[Duplicates] ✅ Successfully archived ${entriesToArchive.length} entries`)
+        } catch (error) {
+          console.error('[Duplicates] ❌ Error archiving entries:', error)
+        }
+      }
     }
+  }
+
+  async markEntriesAsRead(entryIds, credentials) {
+    if (!credentials || !credentials.username || !credentials.password) {
+      throw new Error('Missing credentials')
+    }
+
+    if (entryIds.length === 0) {
+      return
+    }
+
+    // Feedbin API: DELETE /v2/unread_entries.json with body
+    const response = await chrome.runtime.sendMessage({
+      type: 'fetch',
+      url: 'https://api.feedbin.com/v2/unread_entries.json',
+      options: {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: 'Basic ' + btoa(`${credentials.username}:${credentials.password}`),
+        },
+        body: JSON.stringify({
+          unread_entries: entryIds,
+        }),
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to mark entries as read: ${response.status}`)
+    }
+
+    return response.data
   }
 
   // ===== Classification =====
@@ -887,7 +949,7 @@ class FeedbinPowerTools {
           `[Feedbin Power Tools] Got full content: ${entryData.content ? entryData.content.length : 0} chars`
         )
       } else {
-        console.warn(`[Feedbin Power Tools] Could not fetch full entry, using summary only`)
+        console.warn('[Feedbin Power Tools] Could not fetch full entry, using summary only')
       }
 
       // Get existing tags
@@ -1007,33 +1069,66 @@ class FeedbinPowerTools {
   }
 }
 
+// ===== Early exit check =====
+// Skip initialization if we're not on a Feedbin page
+function isFeedbinPage() {
+  // Check 1: Title contains "Feedbin"
+  const titleContainsFeedbin = document.title.includes('Feedbin')
+
+  // If title doesn't contain Feedbin, probably not a Feedbin page
+  // This is especially important for localhost:3000, which could be any dev server
+  if (!titleContainsFeedbin) {
+    console.log('[Feedbin Power Tools] Not a Feedbin page - title does not contain "Feedbin"')
+    return false
+  }
+
+  // Check 2: Critical elements exist (check synchronously if DOM is ready)
+  if (document.readyState !== 'loading') {
+    const hasFeedList = !!document.querySelector('ul.feed-list')
+    const hasEntriesContainer = !!document.querySelector('.entries')
+
+    // If DOM is ready and we don't have critical elements, bail
+    if (!hasFeedList && !hasEntriesContainer) {
+      console.log('[Feedbin Power Tools] Not a Feedbin page - missing critical elements')
+      return false
+    }
+  }
+
+  return true
+}
+
 // Initialize with better timing
 console.log('[Feedbin Power Tools] Script loaded at', new Date().toISOString())
 console.log('[Feedbin Power Tools] Document ready state:', document.readyState)
 
-const powerTools = new FeedbinPowerTools()
-
-// Function to try initialization
-function tryInit() {
-  console.log('[Feedbin Power Tools] Attempting initialization...')
-  powerTools.init().catch((err) => {
-    console.error('[Feedbin Power Tools] Init failed:', err)
-  })
-}
-
-// Try immediately if DOM is ready
-if (document.readyState === 'loading') {
-  console.log('[Feedbin Power Tools] Waiting for DOMContentLoaded...')
-  document.addEventListener('DOMContentLoaded', tryInit)
+// Early check - skip if not Feedbin
+if (!isFeedbinPage()) {
+  console.log('[Feedbin Power Tools] Skipping initialization - not on Feedbin page')
 } else {
-  console.log('[Feedbin Power Tools] DOM already loaded, initializing now')
-  tryInit()
-}
+  const powerTools = new FeedbinPowerTools()
 
-// Also try after a short delay as a fallback
-setTimeout(() => {
-  if (!powerTools.initialized) {
-    console.log('[Feedbin Power Tools] Fallback init after 1 second')
+  // Function to try initialization
+  function tryInit() {
+    console.log('[Feedbin Power Tools] Attempting initialization...')
+    powerTools.init().catch((err) => {
+      console.error('[Feedbin Power Tools] Init failed:', err)
+    })
+  }
+
+  // Try immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    console.log('[Feedbin Power Tools] Waiting for DOMContentLoaded...')
+    document.addEventListener('DOMContentLoaded', tryInit)
+  } else {
+    console.log('[Feedbin Power Tools] DOM already loaded, initializing now')
     tryInit()
   }
-}, 1000)
+
+  // Also try after a short delay as a fallback
+  setTimeout(() => {
+    if (!powerTools.initialized) {
+      console.log('[Feedbin Power Tools] Fallback init after 1 second')
+      tryInit()
+    }
+  }, 1000)
+}
