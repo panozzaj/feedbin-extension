@@ -262,12 +262,7 @@
   border-color: #6b7280 !important;
 }
 
-/* Popup styles */
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+/* Popup styles - scoped to popup only */
 
 .popup-container {
   width: 600px;
